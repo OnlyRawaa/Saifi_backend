@@ -15,11 +15,21 @@ class ProviderService:
         cur = conn.cursor()
 
         try:
+            # ✅ لازم واحد منهم موجود
+            if not data.get("email") and not data.get("phone"):
+                raise ValueError("Email or phone is required")
+
             # ✅ تحقق من التكرار (إيميل أو جوال)
-            cur.execute(
-                "SELECT provider_id FROM providers WHERE email = %s OR phone = %s;",
-                (data["email"], data["phone"])
-            )
+            cur.execute("""
+                SELECT provider_id 
+                FROM providers 
+                WHERE (%s IS NOT NULL AND email = %s)
+                   OR (%s IS NOT NULL AND phone = %s);
+            """, (
+                data.get("email"), data.get("email"),
+                data.get("phone"), data.get("phone")
+            ))
+
             if cur.fetchone():
                 raise ValueError("Email or phone already exists")
 
@@ -27,23 +37,25 @@ class ProviderService:
 
             cur.execute("""
                 INSERT INTO providers (
-                    name,
+                    provider_name,
                     email,
                     phone,
                     location_lat,
                     location_lng,
+                    address,
                     description,
                     password_hash
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING provider_id;
             """, (
-                data["name"],
-                data["email"],
-                data["phone"],
+                data["provider_name"],
+                data.get("email"),
+                data.get("phone"),
                 data["location_lat"],
                 data["location_lng"],
-                data["description"],
+                data["address"],
+                data.get("description"),
                 hashed
             ))
 
@@ -61,56 +73,61 @@ class ProviderService:
             conn.close()
 
     # =========================
-    # ✅ LOGIN PROVIDER
+    # ✅ LOGIN PROVIDER (EMAIL OR PHONE)
     # =========================
     @staticmethod
-    def login_provider(email: str, password: str):
+    def login_provider(email: str = None, phone: str = None, password: str = None):
         conn = get_connection()
         cur = conn.cursor()
 
         try:
+            if not email and not phone:
+                return None
+
             cur.execute("""
                 SELECT
                     provider_id,
-                    name,
+                    provider_name,
                     email,
                     phone,
                     location_lat,
                     location_lng,
+                    address,
                     description,
                     password_hash
                 FROM providers
-                WHERE email = %s;
-            """, (email,))
+                WHERE (%s IS NOT NULL AND email = %s)
+                   OR (%s IS NOT NULL AND phone = %s);
+            """, (email, email, phone, phone))
 
             row = cur.fetchone()
-
             if not row:
                 return None
 
             provider = Provider(
                 provider_id=row[0],
-                name=row[1],
+                provider_name=row[1],
                 email=row[2],
                 phone=row[3],
                 location_lat=row[4],
                 location_lng=row[5],
-                description=row[6],
-                password_hash=row[7]
+                address=row[6],
+                description=row[7],
+                password_hash=row[8]
             )
 
             # ✅ تحقق كلمة المرور
             if not verify_password(password, provider.password_hash):
                 return None
 
-            # ✅ نرجع بيانات نظيفة للـ API
             return {
                 "provider_id": provider.provider_id,
-                "name": provider.name,
+                "provider_name": provider.provider_name,
                 "email": provider.email,
                 "phone": provider.phone,
                 "location_lat": provider.location_lat,
                 "location_lng": provider.location_lng,
+                "address": provider.address,
                 "description": provider.description
             }
 
@@ -130,11 +147,12 @@ class ProviderService:
             cur.execute("""
                 SELECT
                     provider_id,
-                    name,
+                    provider_name,
                     email,
                     phone,
                     location_lat,
                     location_lng,
+                    address,
                     description
                 FROM providers;
             """)
