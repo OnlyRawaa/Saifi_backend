@@ -5,7 +5,6 @@ from uuid import UUID
 
 router = APIRouter(prefix="/parents", tags=["Parents"])
 
-
 # =========================
 # ✅ Register Parent
 # =========================
@@ -37,6 +36,20 @@ def register_parent(parent: ParentCreate):
             detail=f"Registration failed: {str(e)}"
         )
 
+# =========================
+# ✅ Get All Parents (NEW ✅)
+# =========================
+@router.get("/")
+def get_all_parents():
+    try:
+        parents = AuthService.get_all_parents()
+        return {"data": parents}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch parents: {str(e)}"
+        )
 
 # =========================
 # ✅ Update Parent Profile
