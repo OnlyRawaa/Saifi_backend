@@ -1,10 +1,13 @@
 import psycopg2
+import os
 
 def get_connection():
     return psycopg2.connect(
-        host="dpg-d44bclk9c44c73ca7950-a",
-        port=5432,
-        database="saifi_db",
-        user="saifi_db_user",
-        password="Pwnxb4A2O6Ev268G8fash5b5OkV5l7v8"
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT", 5432),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        sslmode=os.getenv("DB_SSLMODE", "require"),
+        connect_timeout=10
     )
