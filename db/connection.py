@@ -6,5 +6,5 @@ def get_connection():
         port=5432,
         database="saifi_db",
         user="saifi_db_user",
-        password="THE_REAL_PASSWORD_FROM_RENDER"
+        password="Pwnxb4A2O6Ev268G8fash5b5OkV5l7v8"
     )
