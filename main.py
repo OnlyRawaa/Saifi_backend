@@ -14,11 +14,11 @@ app = FastAPI(
 )
 
 # =========================
-# ✅ CORS CONFIG (IMPORTANT FOR FLUTTER)
+# ✅ CORS CONFIG (FOR FLUTTER / WEB)
 # =========================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # لاحقًا يمكنكِ تحديد دومين التطبيق فقط
+    allow_origins=["*"],  # ممكن لاحقًا تقفلينها على دومين التطبيق فقط
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,11 +27,19 @@ app.add_middleware(
 # =========================
 # ✅ ROUTERS
 # =========================
-app.include_router(parents_router, prefix="/parents", tags=["Parents"])
-app.include_router(providers_router, prefix="/providers", tags=["Providers"])
-app.include_router(children_router, prefix="/children", tags=["Children"])
-app.include_router(activities_router, prefix="/activities", tags=["Activities"])
-app.include_router(bookings_router, prefix="/bookings", tags=["Bookings"])
+# ملاحظة: كل Router عنده prefix داخل ملفه نفسه
+# parents.py  -> prefix="/parents"
+# providers.py -> prefix="/providers"
+# children.py -> prefix="/children"
+# activities.py -> prefix="/activities"
+# bookings.py -> prefix="/bookings"
+# لذلك هنا ما نعيد الـ prefix عشان ما يصير /parents/parents
+
+app.include_router(parents_router)
+app.include_router(providers_router)
+app.include_router(children_router)
+app.include_router(activities_router)
+app.include_router(bookings_router)
 
 # =========================
 # ✅ ROOT CHECK
@@ -44,7 +52,7 @@ def home():
     }
 
 # =========================
-# ✅ HEALTH CHECK (FOR RENDER + DEBUGGING)
+# ✅ HEALTH CHECK
 # =========================
 @app.get("/health")
 def health():
