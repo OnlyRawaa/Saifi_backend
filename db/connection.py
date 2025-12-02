@@ -1,11 +1,10 @@
 import psycopg2
-import os
 
 def get_connection():
     return psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT", 5432),
-        database=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
+        host="dpg-d44bclk9c44c73ca7950-a",
+        port=5432,
+        database="saifi_db",
+        user="saifi_db_user",
+        password="THE_REAL_PASSWORD_FROM_RENDER"
     )
