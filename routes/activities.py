@@ -79,3 +79,14 @@ def update_activity(activity_id: UUID, data: ActivityUpdate):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+@router.get("/by-provider/{provider_id}")
+def get_activities_by_provider(provider_id: str):
+    try:
+        activities = ActivityService.get_activities_by_provider(provider_id)
+        return activities
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch provider activities: {str(e)}"
+        )
