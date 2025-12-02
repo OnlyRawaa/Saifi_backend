@@ -29,20 +29,21 @@ def register_provider(data: ProviderRegister):
 
 
 # =========================
-# ✅ LOGIN
+# ✅ LOGIN (EMAIL OR PHONE)
 # =========================
 @router.post("/login")
 def login_provider(data: ProviderLogin):
     try:
         provider = ProviderService.login_provider(
-            data.email,
-            data.password
+            email=data.email,
+            phone=data.phone,
+            password=data.password
         )
 
         if not provider:
             raise HTTPException(
                 status_code=401,
-                detail="Invalid email or password"
+                detail="Invalid credentials"
             )
 
         return {
