@@ -101,3 +101,21 @@ class ActivityService:
         conn.close()
 
         return activity
+@staticmethod
+def get_activities_by_provider(provider_id: str):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        cur.execute("""
+            SELECT *
+            FROM activities
+            WHERE provider_id = %s
+            ORDER BY start_date DESC;
+        """, (provider_id,))
+
+        return cur.fetchall()
+
+    finally:
+        cur.close()
+        conn.close()
