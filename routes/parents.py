@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from services.auth_service import AuthService
-from schemas.parent_schema import ParentCreate, ParentUpdate
+from schemas.parent_schema import ParentCreate, ParentUpdate, ParentLocationUpdate
 from uuid import UUID
 
 router = APIRouter(prefix="/parents", tags=["Parents"])
+
 
 # =========================
 # ✅ Register Parent
@@ -25,10 +26,7 @@ def register_parent(parent: ParentCreate):
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
 
     except Exception as e:
         raise HTTPException(
@@ -36,8 +34,9 @@ def register_parent(parent: ParentCreate):
             detail=f"Registration failed: {str(e)}"
         )
 
+
 # =========================
-# ✅ Get All Parents (NEW ✅)
+# ✅ Get All Parents
 # =========================
 @router.get("/")
 def get_all_parents():
@@ -50,6 +49,31 @@ def get_all_parents():
             status_code=500,
             detail=f"Failed to fetch parents: {str(e)}"
         )
+
+
+# =========================
+# ✅ Update Parent Location  ✅<<< لازم قبل /{parent_id}
+# =========================
+@router.put("/update-location")
+def update_parent_location(data: ParentLocationUpdate):
+    try:
+        updated = AuthService.update_parent_location(
+            parent_id=data.parent_id,
+            lat=data.location_lat,
+            lng=data.location_lng
+        )
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Parent not found")
+
+        return {"message": "Location updated successfully"}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update location: {str(e)}"
+        )
+
 
 # =========================
 # ✅ Update Parent Profile
@@ -74,28 +98,4 @@ def update_parent(parent_id: UUID, parent: ParentUpdate):
         raise HTTPException(
             status_code=500,
             detail=f"Update failed: {str(e)}"
-        )
-from schemas.parent_schema import ParentLocationUpdate
-
-# =========================
-# ✅ Update Parent Location
-# =========================
-@router.put("/update-location")
-def update_parent_location(data: ParentLocationUpdate):
-    try:
-        updated = AuthService.update_parent_location(
-            parent_id=data.parent_id,
-            lat=data.location_lat,
-            lng=data.location_lng
-        )
-
-        if not updated:
-            raise HTTPException(status_code=404, detail="Parent not found")
-
-        return {"message": "Location updated successfully"}
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update location: {str(e)}"
         )
