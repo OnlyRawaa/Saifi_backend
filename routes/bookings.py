@@ -15,7 +15,10 @@ def create_booking(data: BookingCreate):
         booking_id = BookingService.create_booking(
             data.parent_id,
             data.child_id,
-            data.activity_id
+            data.activity_id,
+            data.provider_id,      # ✅ كان مفقود
+            data.status,           # ✅ كان مفقود
+            data.booking_date      # ✅ كان مفقود
         )
 
         return {
@@ -27,7 +30,10 @@ def create_booking(data: BookingCreate):
         raise HTTPException(status_code=400, detail=str(e))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Create booking failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Create booking failed: {str(e)}"
+        )
 
 
 # =========================
@@ -39,7 +45,10 @@ def get_parent_bookings(parent_id: UUID):
         return BookingService.get_parent_bookings(str(parent_id))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fetch parent bookings failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fetch parent bookings failed: {str(e)}"
+        )
 
 
 # =========================
@@ -51,7 +60,10 @@ def get_child_bookings(child_id: UUID):
         return BookingService.get_child_bookings(str(child_id))
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fetch child bookings failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fetch child bookings failed: {str(e)}"
+        )
 
 
 # =========================
@@ -77,4 +89,7 @@ def update_booking_status(data: BookingUpdate):
         raise
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Update booking failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Update booking failed: {str(e)}"
+        )
