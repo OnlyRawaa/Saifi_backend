@@ -133,3 +133,34 @@ class BookingService:
         conn.close()
 
         return updated > 0
+# =========================
+# ✅ Get Bookings By Activity (FOR PROVIDER)
+# =========================
+@staticmethod
+def get_bookings_by_activity(activity_id: str):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("""
+        SELECT
+            b.booking_id,
+            b.parent_id,
+            b.child_id,
+            b.activity_id,
+            b.provider_id,
+            b.status,
+            b.booking_date,
+
+            c.first_name || ' ' || c.last_name AS child_name,
+            c.gender AS child_gender
+
+        FROM bookings b
+        JOIN children c ON b.child_id = c.child_id
+        WHERE b.activity_id = %s
+        ORDER BY b.created_at DESC;
+    """, (activity_id,))
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
