@@ -75,3 +75,27 @@ def update_parent(parent_id: UUID, parent: ParentUpdate):
             status_code=500,
             detail=f"Update failed: {str(e)}"
         )
+from schemas.parent_schema import ParentLocationUpdate
+
+# =========================
+# ✅ Update Parent Location
+# =========================
+@router.put("/update-location")
+def update_parent_location(data: ParentLocationUpdate):
+    try:
+        updated = AuthService.update_parent_location(
+            parent_id=data.parent_id,
+            lat=data.location_lat,
+            lng=data.location_lng
+        )
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Parent not found")
+
+        return {"message": "Location updated successfully"}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update location: {str(e)}"
+        )
