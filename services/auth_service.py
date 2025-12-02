@@ -133,6 +133,24 @@ class AuthService:
         except Exception as e:
             conn.rollback()
             raise e
+@staticmethod
+def update_parent_location(parent_id: str, lat: float, lng: float):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE parents
+        SET location_lat = %s,
+            location_lng = %s
+        WHERE parent_id = %s;
+    """, (lat, lng, parent_id))
+
+    updated = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return updated > 0
 
         finally:
             cur.close()
