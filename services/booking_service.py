@@ -5,26 +5,46 @@ from psycopg2.extras import RealDictCursor
 class BookingService:
 
     # =========================
-    # ✅ Create Booking
+    # ✅ Create Booking (FIXED)
     # =========================
     @staticmethod
-    def create_booking(parent_id: str, child_id: str, activity_id: str, provider_id: str):
+    def create_booking(
+        parent_id: str,
+        child_id: str,
+        activity_id: str,
+        provider_id: str,
+        status: str,
+        booking_date
+    ):
         conn = get_connection()
         cur = conn.cursor()
 
-        cur.execute("""
-            INSERT INTO bookings (parent_id, child_id, activity_id, provider_id)
-            VALUES (%s, %s, %s, %s)
-            RETURNING booking_id;
-        """, (parent_id, child_id, activity_id, provider_id))
+        try:
+            cur.execute("""
+                INSERT INTO bookings 
+                (parent_id, child_id, activity_id, provider_id, status, booking_date)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING booking_id;
+            """, (
+                parent_id,
+                child_id,
+                activity_id,
+                provider_id,
+                status,
+                booking_date
+            ))
 
-        booking_id = cur.fetchone()[0]
+            booking_id = cur.fetchone()[0]
+            conn.commit()
+            return booking_id
 
-        conn.commit()
-        cur.close()
-        conn.close()
+        except Exception as e:
+            conn.rollback()
+            raise e
 
-        return booking_id
+        finally:
+            cur.close()
+            conn.close()
 
 
     # =========================
@@ -58,10 +78,8 @@ class BookingService:
         """, (parent_id,))
 
         rows = cur.fetchall()
-
         cur.close()
         conn.close()
-
         return rows
 
 
@@ -89,10 +107,8 @@ class BookingService:
         """, (child_id,))
 
         rows = cur.fetchall()
-
         cur.close()
         conn.close()
-
         return rows
 
 
@@ -110,8 +126,9 @@ class BookingService:
             WHERE booking_id = %s;
         """, (status, booking_id))
 
+        updated = cur.rowcount
         conn.commit()
         cur.close()
         conn.close()
 
-        return True
+        return updated > 0
