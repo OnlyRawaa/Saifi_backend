@@ -21,18 +21,19 @@ class BookingService:
 
         try:
             cur.execute("""
-                INSERT INTO bookings 
-                (parent_id, child_id, activity_id, provider_id, status, booking_date)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING booking_id;
-            """, (
-                parent_id,
-                child_id,
-                activity_id,
-                provider_id,
-                status,
-                booking_date
-            ))
+    INSERT INTO bookings 
+    (parent_id, child_id, activity_id, provider_id, status, booking_date)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    RETURNING booking_id;
+""", (
+    str(parent_id),     # ✅ تحويـل UUID إلى str
+    str(child_id),      # ✅
+    str(activity_id),   # ✅
+    str(provider_id),   # ✅
+    status,
+    booking_date
+))
+
 
             booking_id = cur.fetchone()[0]
             conn.commit()
