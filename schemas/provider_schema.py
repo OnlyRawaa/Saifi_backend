@@ -12,8 +12,6 @@ class ProviderRegister(BaseModel):
     location_lat: float
     location_lng: float
     address: str = Field(..., min_length=5)
-
-    description: Optional[str] = None
     password: str = Field(..., min_length=8)
 
 
