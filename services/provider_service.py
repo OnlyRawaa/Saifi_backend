@@ -37,7 +37,7 @@ class ProviderService:
 
             cur.execute("""
                 INSERT INTO providers (
-                    provider_name,
+                    name,
                     email,
                     phone,
                     location_lat,
@@ -49,7 +49,7 @@ class ProviderService:
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING provider_id;
             """, (
-                data["provider_name"],
+                data["name"],
                 data.get("email"),
                 data.get("phone"),
                 data["location_lat"],
@@ -87,7 +87,7 @@ class ProviderService:
             cur.execute("""
                 SELECT
                     provider_id,
-                    provider_name,
+                    name,
                     email,
                     phone,
                     location_lat,
@@ -106,7 +106,7 @@ class ProviderService:
 
             provider = Provider(
                 provider_id=row[0],
-                provider_name=row[1],
+                name=row[1],
                 email=row[2],
                 phone=row[3],
                 location_lat=row[4],
@@ -122,7 +122,7 @@ class ProviderService:
 
             return {
                 "provider_id": provider.provider_id,
-                "provider_name": provider.provider_name,
+                "name": provider.provider_name,
                 "email": provider.email,
                 "phone": provider.phone,
                 "location_lat": provider.location_lat,
@@ -147,7 +147,7 @@ class ProviderService:
             cur.execute("""
                 SELECT
                     provider_id,
-                    provider_name,
+                    name,
                     email,
                     phone,
                     location_lat,
