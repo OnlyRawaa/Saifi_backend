@@ -12,7 +12,7 @@ class ChildBase(BaseModel):
 
 
 class ChildCreate(ChildBase):
-    parent_id: UUID
+    parent_id: str
 
 
 class ChildUpdate(BaseModel):
