@@ -43,10 +43,9 @@ class ProviderService:
                     location_lat,
                     location_lng,
                     address,
-                    description,
                     password_hash
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 RETURNING provider_id;
             """, (
                 data["name"],
@@ -55,7 +54,6 @@ class ProviderService:
                 data["location_lat"],
                 data["location_lng"],
                 data["address"],
-                data.get("description"),
                 hashed
             ))
 
@@ -93,7 +91,6 @@ class ProviderService:
                     location_lat,
                     location_lng,
                     address,
-                    description,
                     password_hash
                 FROM providers
                 WHERE (%s IS NOT NULL AND email = %s)
@@ -112,8 +109,7 @@ class ProviderService:
                 location_lat=row[4],
                 location_lng=row[5],
                 address=row[6],
-                description=row[7],
-                password_hash=row[8]
+                password_hash=row[7]
             )
 
             # ✅ تحقق كلمة المرور
@@ -128,7 +124,6 @@ class ProviderService:
                 "location_lat": provider.location_lat,
                 "location_lng": provider.location_lng,
                 "address": provider.address,
-                "description": provider.description
             }
 
         finally:
@@ -152,8 +147,7 @@ class ProviderService:
                     phone,
                     location_lat,
                     location_lng,
-                    address,
-                    description
+                    address
                 FROM providers;
             """)
 
