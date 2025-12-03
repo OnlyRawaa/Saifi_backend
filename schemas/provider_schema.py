@@ -2,8 +2,10 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 
-class ProviderRegister(BaseModel):
-    provider_name: str = Field(..., min_length=2)
+
+    class ProviderRegister(BaseModel):
+    name: str = Field(..., min_length=2)
+
 
     # ✅ واحد فقط من الاثنين (إيميل أو هاتف)
     email: Optional[EmailStr] = None
