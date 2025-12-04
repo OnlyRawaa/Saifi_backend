@@ -184,3 +184,45 @@ class ProviderService:
         finally:
             cur.close()
             conn.close()
+# =========================
+# ✅ UPDATE PROVIDER
+# =========================
+@staticmethod
+def update_provider(provider_id: str, data: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        if not data:
+            return False
+
+        fields = []
+        values = []
+
+        for key, value in data.items():
+            fields.append(f"{key} = %s")
+            values.append(value)
+
+        values.append(provider_id)
+
+        query = f"""
+            UPDATE providers
+            SET {", ".join(fields)}
+            WHERE provider_id = %s
+        """
+
+        cur.execute(query, tuple(values))
+
+        if cur.rowcount == 0:
+            return False
+
+        conn.commit()
+        return True
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        cur.close()
+        conn.close()
