@@ -157,3 +157,30 @@ class ProviderService:
         finally:
             cur.close()
             conn.close()
+    # =========================
+    # ✅ GET PROVIDER BY ID
+    # =========================
+    @staticmethod
+    def get_provider_by_id(provider_id: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        try:
+            cur.execute("""
+                SELECT
+                    provider_id,
+                    name,
+                    email,
+                    phone,
+                    location_lat,
+                    location_lng,
+                    address
+                FROM providers
+                WHERE provider_id = %s;
+            """, (provider_id,))
+
+            return cur.fetchone()
+
+        finally:
+            cur.close()
+            conn.close()
