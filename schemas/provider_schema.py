@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, root_validator
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from typing import Optional
 
 
@@ -8,7 +8,6 @@ from typing import Optional
 class ProviderRegister(BaseModel):
     name: str = Field(..., min_length=2)
 
-    # واحد فقط من الاثنين (إيميل أو هاتف)
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(default=None, min_length=10, max_length=10)
 
@@ -18,19 +17,14 @@ class ProviderRegister(BaseModel):
 
     password: str = Field(..., min_length=8)
 
-    # ✅ ضمان أن واحد فقط من (email أو phone) موجود
-    @root_validator
-    def check_email_or_phone(cls, values):
-        email = values.get("email")
-        phone = values.get("phone")
-
-        if not email and not phone:
+    # ✅ Pydantic v2 validator
+    @model_validator(mode="after")
+    def check_email_or_phone(self):
+        if not self.email and not self.phone:
             raise ValueError("Either email or phone must be provided")
-
-        if email and phone:
+        if self.email and self.phone:
             raise ValueError("Provide only one of email or phone, not both")
-
-        return values
+        return self
 
 
 # =========================
@@ -41,16 +35,10 @@ class ProviderLogin(BaseModel):
     phone: Optional[str] = None
     password: str = Field(..., min_length=8)
 
-    # ✅ نفس القاعدة في تسجيل الدخول
-    @root_validator
-    def check_login_identifier(cls, values):
-        email = values.get("email")
-        phone = values.get("phone")
-
-        if not email and not phone:
+    @model_validator(mode="after")
+    def check_login_identifier(self):
+        if not self.email and not self.phone:
             raise ValueError("Either email or phone must be provided")
-
-        if email and phone:
+        if self.email and self.phone:
             raise ValueError("Provide only one of email or phone, not both")
-
-        return values
+        return self
