@@ -42,21 +42,24 @@ def get_all_activities():
 # ✅ Get Activity By ID
 # =========================
 @router.get("/{activity_id}")
-def get_activity_by_id(activity_id: UUID):
+def get_activity_by_id(activity_id: str):
     try:
-        activity = ActivityService.get_activity_by_id(str(activity_id))
+        activity = ActivityService.get_activity_by_id(activity_id)
 
         if not activity:
-            raise HTTPException(status_code=404, detail="Activity not found")
+            raise HTTPException(
+                status_code=404,
+                detail="Activity not found"
+            )
 
-        return {"data": activity}
-
+        return activity   # ⛔ لا ترجعيه داخل data
     except HTTPException:
         raise
-
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fetch activity failed: {str(e)}")
-
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch activity: {str(e)}"
+        )
 
 # =========================
 # ✅ Update Activity
