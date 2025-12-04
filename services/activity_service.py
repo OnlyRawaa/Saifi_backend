@@ -7,53 +7,53 @@ class ActivityService:
     # =========================
     # ✅ Create Activity (FIXED ✅)
     # =========================
-@staticmethod
-def create_activity(data: dict):
-    conn = get_connection()
-    cur = conn.cursor()
+    @staticmethod
+    def create_activity(data: dict):
+        conn = get_connection()
+        cur = conn.cursor()
 
-    try:
-        cur.execute("""
-            INSERT INTO activities (
-                provider_id,
-                title,
-                description,
-                price,
-                gender,
-                age_from,
-                age_to,
-                capacity,       -- ✅ مضافة
-                duration,
-                type,
-                status,
-                start_date,
-                end_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING activity_id;
-        """, (
-            data["provider_id"],
-            data["title"],
-            data.get("description"),
-            data["price"],
-            data["gender"],
-            data["age_from"],
-            data["age_to"],
-            data["capacity"],           # ✅ كانت سبب الخراب
-            data["duration"],
-            data["type"],
-            data.get("status", True),
-            data.get("start_date"),
-            data.get("end_date")
-        ))
+        try:
+            cur.execute("""
+                INSERT INTO activities (
+                    provider_id,
+                    title,
+                    description,
+                    price,
+                    gender,
+                    age_from,
+                    age_to,
+                    capacity,
+                    duration,
+                    type,
+                    status,
+                    start_date,
+                    end_date
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING activity_id;
+            """, (
+                data["provider_id"],
+                data["title"],
+                data.get("description"),
+                data["price"],
+                data["gender"],
+                data["age_from"],
+                data["age_to"],
+                data["capacity"],          # ✅ كانت سبب الخراب
+                data["duration"],
+                data["type"],
+                data.get("status", True),
+                data.get("start_date"),
+                data.get("end_date")
+            ))
 
-        activity_id = cur.fetchone()[0]
-        conn.commit()
-        return activity_id
+            activity_id = cur.fetchone()[0]
+            conn.commit()
+            return activity_id
 
-    finally:
-        cur.close()
-        conn.close()
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
     # ✅ Get All Active Activities
@@ -74,6 +74,7 @@ def create_activity(data: dict):
                     age_from,
                     age_to,
                     price,
+                    capacity,
                     duration,
                     type,
                     status,
@@ -111,7 +112,7 @@ def create_activity(data: dict):
             conn.close()
 
     # =========================
-    # ✅ Get Activities By Provider ✅ الصحيح لواجهة البروفايدر
+    # ✅ Get Activities By Provider ✅
     # =========================
     @staticmethod
     def get_activities_by_provider(provider_id: str):
@@ -127,6 +128,49 @@ def create_activity(data: dict):
             """, (provider_id,))
 
             return cur.fetchall()
+
+        finally:
+            cur.close()
+            conn.close()
+
+    # =========================
+    # ✅ Update Activity ✅
+    # =========================
+    @staticmethod
+    def update_activity(activity_id: str, data: dict):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            if not data:
+                return False
+
+            fields = []
+            values = []
+
+            for key, value in data.items():
+                fields.append(f"{key} = %s")
+                values.append(value)
+
+            values.append(activity_id)
+
+            query = f"""
+                UPDATE activities
+                SET {", ".join(fields)}
+                WHERE activity_id = %s
+            """
+
+            cur.execute(query, tuple(values))
+
+            if cur.rowcount == 0:
+                return False
+
+            conn.commit()
+            return True
+
+        except Exception as e:
+            conn.rollback()
+            raise e
 
         finally:
             cur.close()
