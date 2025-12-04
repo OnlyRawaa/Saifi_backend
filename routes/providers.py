@@ -27,28 +27,7 @@ def register_provider(data: ProviderRegister):
             status_code=500,
             detail=f"Provider registration failed: {str(e)}"
         )
-# =========================
-# ✅ get_activity_by_id
-# =========================
-@router.get("/{activity_id}")
-def get_activity_by_id(activity_id: str):
-    try:
-        activity = ActivityService.get_activity_by_id(activity_id)
 
-        if not activity:
-            raise HTTPException(
-                status_code=404,
-                detail="Activity not found"
-            )
-
-        return activity   # ⛔ لا ترجعيه داخل data
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch activity: {str(e)}"
-        )
 
 # =========================
 # ✅ LOGIN (EMAIL OR PHONE)
