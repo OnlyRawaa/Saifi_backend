@@ -47,9 +47,10 @@ class ProviderLogin(BaseModel):
 # ✅ update
 # =========================
 class ProviderUpdate(BaseModel):
-    name: str
+    name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
     address: Optional[str] = None
+
