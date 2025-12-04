@@ -113,26 +113,24 @@ def get_provider_by_id(provider_id: str):
 @router.put("/{provider_id}")
 def update_provider(provider_id: str, data: ProviderUpdate):
     try:
-        updated = ProviderService.update_provider(
+        ProviderService.update_provider(
             provider_id,
             data.dict(exclude_unset=True)
         )
-
-        if not updated:
-            raise HTTPException(
-                status_code=404,
-                detail="Provider not found"
-            )
 
         return {
             "message": "Provider updated successfully"
         }
 
-    except HTTPException:
-        raise
+    except ValueError:
+        raise HTTPException(
+            status_code=404,
+            detail="Provider not found"
+        )
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Failed to update provider: {str(e)}"
         )
+
