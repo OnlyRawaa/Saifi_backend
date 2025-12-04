@@ -23,8 +23,8 @@ class ActivityBase(BaseModel):
     type: str                 # Sports / Technology / etc
     status: bool              # Active = True / Inactive = False
 
-    start_date: date
-    end_date: date
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 # =========================
