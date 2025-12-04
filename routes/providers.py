@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from services.provider_service import ProviderService
-from schemas.provider_schema import ProviderRegister, ProviderLoginو ProviderUpdate
+
+from schemas.provider_schema import ProviderRegister, ProviderLogin, ProviderUpdate
 
 router = APIRouter(prefix="/providers", tags=["Providers"])
 
