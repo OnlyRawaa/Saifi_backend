@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date
 
@@ -9,19 +9,19 @@ from datetime import date
 class ActivityBase(BaseModel):
     provider_id: str
 
-    title: str
+    title: str = Field(..., min_length=2)
     description: Optional[str] = None
 
-    gender: str               # male / female / both
-    age_from: int
-    age_to: int
+    gender: str = Field(..., description="male / female / both")
+    age_from: int = Field(..., ge=0)
+    age_to: int = Field(..., ge=0)
 
-    price: float
-    capacity: int
-    duration: int             # عدد الساعات
+    price: float = Field(..., ge=0)
+    capacity: int = Field(..., ge=1)
+    duration: int = Field(..., ge=1)   # عدد الساعات
 
-    type: str                 # Sports / Technology / etc
-    status: bool              # Active = True / Inactive = False
+    type: str                          # Sports / Technology / etc
+    status: bool = True                # ✅ افتراضي Active
 
     start_date: Optional[date] = None
     end_date: Optional[date] = None
