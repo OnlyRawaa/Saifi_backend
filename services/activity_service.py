@@ -7,51 +7,53 @@ class ActivityService:
     # =========================
     # ✅ Create Activity (FIXED ✅)
     # =========================
-    @staticmethod
-    def create_activity(data: dict):
-        conn = get_connection()
-        cur = conn.cursor()
+@staticmethod
+def create_activity(data: dict):
+    conn = get_connection()
+    cur = conn.cursor()
 
-        try:
-            cur.execute("""
-                INSERT INTO activities (
-                    provider_id,
-                    title,
-                    description,
-                    price,
-                    gender,
-                    age_from,
-                    age_to,
-                    duration,
-                    type,
-                    status,
-                    start_date,
-                    end_date
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING activity_id;
-            """, (
-                data["provider_id"],
-                data["title"],
-                data.get("description"),
-                data["price"],
-                data["gender"],
-                data["age_from"],
-                data["age_to"],
-                data["duration"],          # ✅ مهم
-                data["type"],              # ✅ مهم
-                data.get("status", True),  # ✅ الافتراضي Active
-                data.get("start_date"),
-                data.get("end_date")
-            ))
+    try:
+        cur.execute("""
+            INSERT INTO activities (
+                provider_id,
+                title,
+                description,
+                price,
+                gender,
+                age_from,
+                age_to,
+                capacity,       -- ✅ مضافة
+                duration,
+                type,
+                status,
+                start_date,
+                end_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING activity_id;
+        """, (
+            data["provider_id"],
+            data["title"],
+            data.get("description"),
+            data["price"],
+            data["gender"],
+            data["age_from"],
+            data["age_to"],
+            data["capacity"],           # ✅ كانت سبب الخراب
+            data["duration"],
+            data["type"],
+            data.get("status", True),
+            data.get("start_date"),
+            data.get("end_date")
+        ))
 
-            activity_id = cur.fetchone()[0]
-            conn.commit()
-            return activity_id
+        activity_id = cur.fetchone()[0]
+        conn.commit()
+        return activity_id
 
-        finally:
-            cur.close()
-            conn.close()
+    finally:
+        cur.close()
+        conn.close()
 
     # =========================
     # ✅ Get All Active Activities
