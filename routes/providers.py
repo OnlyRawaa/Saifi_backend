@@ -46,7 +46,6 @@ def login_provider(data: ProviderLogin):
                 detail="Invalid credentials"
             )
 
-        # ✅ إرجاع JSON نظيف فقط
         return {
             "message": "Login successful",
             "provider_id": str(provider["provider_id"]),
@@ -80,4 +79,30 @@ def get_all_providers():
         raise HTTPException(
             status_code=500,
             detail=f"Failed to fetch providers: {str(e)}"
+        )
+
+
+# =========================
+# ✅ GET PROVIDER BY ID (هذا الذي ينقصك)
+# =========================
+@router.get("/{provider_id}")
+def get_provider_by_id(provider_id: str):
+    try:
+        provider = ProviderService.get_provider_by_id(provider_id)
+
+        if not provider:
+            raise HTTPException(
+                status_code=404,
+                detail="Provider not found"
+            )
+
+        return provider
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch provider: {str(e)}"
         )
