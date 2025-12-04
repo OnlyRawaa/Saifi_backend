@@ -116,9 +116,10 @@ class ProviderService:
             if not verify_password(password, provider.password_hash):
                 return None
 
+            # ✅ إرجاع Dictionary نظيف متوافق مع Flutter
             return {
                 "provider_id": provider.provider_id,
-                "name": provider.provider_name,
+                "name": provider.name,              # ✅ هنا التصحيح القاتل
                 "email": provider.email,
                 "phone": provider.phone,
                 "location_lat": provider.location_lat,
