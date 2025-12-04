@@ -15,7 +15,7 @@ def register_provider(data: ProviderRegister):
 
         return {
             "message": "Provider registered successfully",
-            "provider_id": result["provider_id"]
+            "provider_id": str(result["provider_id"])
         }
 
     except ValueError as e:
@@ -46,9 +46,16 @@ def login_provider(data: ProviderLogin):
                 detail="Invalid credentials"
             )
 
+        # ✅ إرجاع JSON نظيف فقط
         return {
             "message": "Login successful",
-            "provider": provider
+            "provider_id": str(provider["provider_id"]),
+            "name": provider["name"],
+            "email": provider.get("email"),
+            "phone": provider.get("phone"),
+            "location_lat": provider.get("location_lat"),
+            "location_lng": provider.get("location_lng"),
+            "address": provider.get("address"),
         }
 
     except HTTPException:
