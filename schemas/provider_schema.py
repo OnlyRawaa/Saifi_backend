@@ -42,8 +42,12 @@ class ProviderLogin(BaseModel):
         if self.email and self.phone:
             raise ValueError("Provide only one of email or phone, not both")
         return self
+
+# =========================
+# ✅ update
+# =========================
 class ProviderUpdate(BaseModel):
-    name: Optional[str] = None
+    name: str
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     location_lat: Optional[float] = None
