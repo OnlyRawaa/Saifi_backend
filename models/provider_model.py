@@ -57,3 +57,11 @@ class ProviderResponse(BaseModel):
 
     class Config:
         orm_mode = True
+# ========== ProviderUpdate ==========
+class ProviderUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    address: Optional[str] = None
