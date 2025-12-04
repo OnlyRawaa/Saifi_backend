@@ -5,46 +5,53 @@ from psycopg2.extras import RealDictCursor
 class ActivityService:
 
     # =========================
-    # ✅ Create Activity
+    # ✅ Create Activity (FIXED ✅)
     # =========================
     @staticmethod
     def create_activity(data: dict):
         conn = get_connection()
         cur = conn.cursor()
 
-        cur.execute("""
-            INSERT INTO activities (
-                provider_id,
-                title,
-                description,
-                price,
-                gender,
-                age_from,
-                age_to,
-                start_date,
-                end_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING activity_id;
-        """, (
-            data["provider_id"],
-            data["title"],
-            data["description"],
-            data["price"],
-            data["gender"],
-            data["age_from"],
-            data["age_to"],
-            data["start_date"],
-            data["end_date"]
-        ))
+        try:
+            cur.execute("""
+                INSERT INTO activities (
+                    provider_id,
+                    title,
+                    description,
+                    price,
+                    gender,
+                    age_from,
+                    age_to,
+                    duration,
+                    type,
+                    status,
+                    start_date,
+                    end_date
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING activity_id;
+            """, (
+                data["provider_id"],
+                data["title"],
+                data.get("description"),
+                data["price"],
+                data["gender"],
+                data["age_from"],
+                data["age_to"],
+                data["duration"],          # ✅ مهم
+                data["type"],              # ✅ مهم
+                data.get("status", True),  # ✅ الافتراضي Active
+                data.get("start_date"),
+                data.get("end_date")
+            ))
 
-        activity_id = cur.fetchone()[0]
-        conn.commit()
-        cur.close()
-        conn.close()
+            activity_id = cur.fetchone()[0]
+            conn.commit()
+            return activity_id
 
-        return activity_id
-
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
     # ✅ Get All Active Activities
@@ -54,33 +61,32 @@ class ActivityService:
         conn = get_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        cur.execute("""
-            SELECT
-                activity_id,
-                provider_id,
-                title,
-                description,
-                gender,
-                age_from,
-                age_to,
-                price,
-                duration,
-                type,
-                status,
-                start_date,
-                end_date,
-                created_at
-            FROM activities
-            WHERE status = true;
-        """)
+        try:
+            cur.execute("""
+                SELECT
+                    activity_id,
+                    provider_id,
+                    title,
+                    description,
+                    gender,
+                    age_from,
+                    age_to,
+                    price,
+                    duration,
+                    type,
+                    status,
+                    start_date,
+                    end_date,
+                    created_at
+                FROM activities
+                WHERE status = true;
+            """)
 
-        activities = cur.fetchall()
+            return cur.fetchall()
 
-        cur.close()
-        conn.close()
-
-        return activities
-
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
     # ✅ Get Activity By ID
@@ -90,21 +96,20 @@ class ActivityService:
         conn = get_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        cur.execute(
-            "SELECT * FROM activities WHERE activity_id = %s;",
-            (str(activity_id),)
-        )
+        try:
+            cur.execute(
+                "SELECT * FROM activities WHERE activity_id = %s;",
+                (activity_id,)
+            )
 
-        activity = cur.fetchone()
+            return cur.fetchone()
 
-        cur.close()
-        conn.close()
-
-        return activity
-
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
-    # ✅ Get Activities By Provider ✅ الآن في مكانها الصحيح
+    # ✅ Get Activities By Provider ✅ الصحيح لواجهة البروفايدر
     # =========================
     @staticmethod
     def get_activities_by_provider(provider_id: str):
@@ -116,7 +121,7 @@ class ActivityService:
                 SELECT *
                 FROM activities
                 WHERE provider_id = %s
-                ORDER BY start_date DESC;
+                ORDER BY created_at DESC;
             """, (provider_id,))
 
             return cur.fetchall()
