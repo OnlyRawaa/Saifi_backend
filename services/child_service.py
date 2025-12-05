@@ -48,47 +48,45 @@ class ChildService:
         return rows
 
 
-    # =========================
-    # ✅ Create Child
-    # =========================
-    @staticmethod
-    def create_child(data: dict):
-        conn = get_connection()
-        cur = conn.cursor()
+@staticmethod
+def create_child(data: dict):
+    conn = get_connection()
+    cur = conn.cursor()
 
-        child_id = str(uuid.uuid4())
+    child_id = str(uuid.uuid4())
 
-        try:
-            cur.execute("""
-                INSERT INTO children (
-                    child_id,
-                    parent_id,
-                    first_name,
-                    last_name,
-                    gender,
-                    birthdate,
-                    age,
-                    notes
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
+    interests = data.get("interests", [])
+
+    try:
+        cur.execute("""
+            INSERT INTO children (
                 child_id,
-                data["parent_id"],
-                data["first_name"],
-                data["last_name"],
-                data["gender"],
-                data["birthdate"],
-                data["age"],
-                data.get("notes")
-            ))
+                parent_id,
+                first_name,
+                last_name,
+                birthdate,
+                gender,
+                interests
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            child_id,
+            data["parent_id"],
+            data["first_name"],
+            data["last_name"],
+            data["birthdate"],
+            data["gender"],
+            interests
+        ))
 
-            conn.commit()
-            return child_id
+        conn.commit()
+        return child_id
 
-        except Exception as e:
-            conn.rollback()
-            raise e
+    except Exception as e:
+        conn.rollback()
+        raise e
 
-        finally:
-            cur.close()
-            conn.close()
+    finally:
+        cur.close()
+        conn.close()
+
