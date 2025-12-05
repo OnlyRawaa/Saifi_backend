@@ -170,18 +170,21 @@ def authenticate_parent(identifier: str, password: str):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    query = """
+    cur.execute("""
         SELECT * FROM parents
         WHERE email = %s OR phone = %s
-    """
-    cur.execute(query, (identifier, identifier))
+    """, (identifier, identifier))
+
     parent = cur.fetchone()
 
     if not parent:
         return None
 
-    stored_hash = parent["password_hash"].encode()
-    if not bcrypt.checkpw(password.encode(), stored_hash):
+    if not bcrypt.checkpw(
+        password.encode(),
+        parent["password_hash"].encode()
+    ):
         return None
 
     return parent
+
