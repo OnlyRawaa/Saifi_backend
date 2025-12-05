@@ -58,37 +58,39 @@ class AuthService:
         finally:
             cur.close()
             conn.close()
-# =========================
-# ✅ GET PARENT BY ID
-# =========================
-@staticmethod
-def get_parent_by_id(parent_id: str):
-    conn = get_connection()
-    cur = conn.cursor()
 
-    cur.execute("""
-        SELECT parent_id, first_name, last_name, email, phone, created_at
-        FROM parents
-        WHERE parent_id = %s
-    """, (parent_id,))
-
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not row:
-        return None
-
-    return {
-        "parent_id": str(row[0]),
-        "first_name": row[1],
-        "last_name": row[2],
-        "email": row[3],
-        "phone": row[4],
-        "created_at": row[5]
-    }
     # =========================
-    # ✅ AUTHENTICATE PARENT (FIXED)
+    # ✅ GET PARENT BY ID
+    # =========================
+    @staticmethod
+    def get_parent_by_id(parent_id: str):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT parent_id, first_name, last_name, email, phone, created_at
+            FROM parents
+            WHERE parent_id = %s
+        """, (parent_id,))
+
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if not row:
+            return None
+
+        return {
+            "parent_id": str(row[0]),
+            "first_name": row[1],
+            "last_name": row[2],
+            "email": row[3],
+            "phone": row[4],
+            "created_at": row[5]
+        }
+
+    # =========================
+    # ✅ AUTHENTICATE PARENT
     # =========================
     @staticmethod
     def authenticate_parent(identifier: str, password: str):
@@ -108,9 +110,7 @@ def get_parent_by_id(parent_id: str):
         if not parent:
             return None
 
-        # ✅ تحقق بكلمة المرور الصحيحة باستخدام passlib
         if not AuthService.verify_password(password, parent["password_hash"]):
             return None
 
         return parent
-
