@@ -26,26 +26,32 @@ class ChildService:
         return rows
 
 
-    # =========================
-    # ✅ Get Children By Parent ID  <<< هذا كان ناقصك
-    # =========================
-    @staticmethod
-    def get_children_by_parent(parent_id: str):
-        conn = get_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+@staticmethod
+def get_children_by_parent(parent_id: str):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        cur.execute("""
-            SELECT *
-            FROM children
-            WHERE parent_id = %s
-            ORDER BY created_at DESC
-        """, (parent_id,))
+    cur.execute("""
+        SELECT 
+            child_id,
+            parent_id,
+            first_name,
+            last_name,
+            birthdate,
+            gender,
+            interests,
+            created_at
+        FROM children
+        WHERE parent_id = %s
+    """, (parent_id,))
 
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
+    rows = cur.fetchall()
 
-        return rows
+    cur.close()
+    conn.close()
+
+    return rows
+
 
 
 @staticmethod
