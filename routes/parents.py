@@ -55,6 +55,17 @@ def login_parent(data: dict):
         "first_name": parent["first_name"],
         "last_name": parent["last_name"]
     }
+# =========================
+# ✅ Get Parent By ID
+# =========================
+@router.get("/{parent_id}")
+def get_parent(parent_id: UUID):
+    parent = AuthService.get_parent_by_id(str(parent_id))
+
+    if not parent:
+        raise HTTPException(status_code=404, detail="Parent not found")
+
+    return parent
 
 
 # =========================
