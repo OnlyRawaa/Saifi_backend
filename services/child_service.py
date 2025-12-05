@@ -67,7 +67,7 @@ class ChildService:
         cur = conn.cursor()
 
         child_id = str(uuid.uuid4())
-        interests = data.get("interests", [])
+        interests = data.get("interests") or []   # ✅ تحصين
         notes = data.get("notes")
 
         try:
@@ -107,10 +107,13 @@ class ChildService:
 
 
     # =========================
-    # ✅ Update Child  <<< هذا كان مفقود
+    # ✅ Update Child (FIXED & SAFE)
     # =========================
     @staticmethod
     def update_child(child_id: str, data: dict):
+        if not data:
+            return False  # ✅ يمنع تنفيذ UPDATE فاضي
+
         conn = get_connection()
         cur = conn.cursor()
 
