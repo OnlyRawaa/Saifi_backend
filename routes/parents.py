@@ -34,6 +34,7 @@ def register_parent(parent: ParentCreate):
             detail=f"Registration failed: {str(e)}"
         )
 
+
 # =========================
 # ✅ Parent Login
 # =========================
@@ -55,37 +56,10 @@ def login_parent(data: dict):
         "first_name": parent["first_name"],
         "last_name": parent["last_name"]
     }
-# =========================
-# ✅ Get Parent By ID
-# =========================
-@router.get("/{parent_id}")
-def get_parent(parent_id: UUID):
-    parent = AuthService.get_parent_by_id(str(parent_id))
-
-    if not parent:
-        raise HTTPException(status_code=404, detail="Parent not found")
-
-    return parent
 
 
 # =========================
-# ✅ Get All Parents
-# =========================
-@router.get("/")
-def get_all_parents():
-    try:
-        parents = AuthService.get_all_parents()
-        return {"data": parents}
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch parents: {str(e)}"
-        )
-
-
-# =========================
-# ✅ Update Parent Location  ✅<<< لازم قبل /{parent_id}
+# ✅ Update Parent Location  (لازم قبل /{parent_id})
 # =========================
 @router.put("/update-location")
 def update_parent_location(data: ParentLocationUpdate):
@@ -106,6 +80,19 @@ def update_parent_location(data: ParentLocationUpdate):
             status_code=500,
             detail=f"Failed to update location: {str(e)}"
         )
+
+
+# =========================
+# ✅ Get Parent By ID
+# =========================
+@router.get("/{parent_id}")
+def get_parent(parent_id: UUID):
+    parent = AuthService.get_parent_by_id(str(parent_id))
+
+    if not parent:
+        raise HTTPException(status_code=404, detail="Parent not found")
+
+    return parent
 
 
 # =========================
