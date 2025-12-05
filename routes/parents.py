@@ -34,6 +34,37 @@ def register_parent(parent: ParentCreate):
             detail=f"Registration failed: {str(e)}"
         )
 
+# =========================
+# ✅ Parent Login
+# =========================
+@router.post("/login")
+def login_parent(data: dict):
+    try:
+        identifier = data.get("email") or data.get("phone")
+        password = data.get("password")
+
+        if not identifier or not password:
+            raise HTTPException(status_code=400, detail="Missing credentials")
+
+        parent = AuthService.authenticate_parent(identifier, password)
+
+        if not parent:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        return {
+            "parent_id": parent["parent_id"],
+            "first_name": parent["first_name"],
+            "last_name": parent["last_name"],
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Login failed: {str(e)}"
+        )
 
 # =========================
 # ✅ Get All Parents
