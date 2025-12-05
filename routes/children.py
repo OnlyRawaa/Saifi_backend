@@ -21,6 +21,14 @@ def get_all_children():
             detail=f"Failed to fetch children: {str(e)}"
         )
 
+@router.put("/{child_id}")
+def update_child(child_id: UUID, data: dict):
+    updated = ChildService.update_child(str(child_id), data)
+
+    if not updated:
+        raise HTTPException(status_code=404, detail="Child not found")
+
+    return {"message": "Child updated successfully"}
 
 # =========================
 # ✅ Get Children By Parent ✅✅✅ (هذا المهم)
