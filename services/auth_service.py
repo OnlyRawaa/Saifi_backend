@@ -58,33 +58,6 @@ class AuthService:
         finally:
             cur.close()
             conn.close()
-
-    # =========================
-    # ✅ AUTHENTICATE PARENT (FIXED)
-    # =========================
-    @staticmethod
-    def authenticate_parent(identifier: str, password: str):
-        conn = get_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-
-        cur.execute("""
-            SELECT * FROM parents
-            WHERE email = %s OR phone = %s
-        """, (identifier, identifier))
-
-        parent = cur.fetchone()
-
-        cur.close()
-        conn.close()
-
-        if not parent:
-            return None
-
-        # ✅ تحقق بكلمة المرور الصحيحة باستخدام passlib
-        if not AuthService.verify_password(password, parent["password_hash"]):
-            return None
-
-        return parent
 # =========================
 # ✅ GET PARENT BY ID
 # =========================
@@ -114,3 +87,30 @@ def get_parent_by_id(parent_id: str):
         "phone": row[4],
         "created_at": row[5]
     }
+    # =========================
+    # ✅ AUTHENTICATE PARENT (FIXED)
+    # =========================
+    @staticmethod
+    def authenticate_parent(identifier: str, password: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        cur.execute("""
+            SELECT * FROM parents
+            WHERE email = %s OR phone = %s
+        """, (identifier, identifier))
+
+        parent = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if not parent:
+            return None
+
+        # ✅ تحقق بكلمة المرور الصحيحة باستخدام passlib
+        if not AuthService.verify_password(password, parent["password_hash"]):
+            return None
+
+        return parent
+
