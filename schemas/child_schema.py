@@ -8,7 +8,7 @@ class ChildBase(BaseModel):
     last_name: str = Field(..., min_length=2)
     birthdate: str
     gender: str = Field(..., pattern="^(Male|Female|male|female)$")
-    interests: Optional[List[str]] = none
+    interests: Optional[List[str]] = None
 
 
 class ChildCreate(ChildBase):
