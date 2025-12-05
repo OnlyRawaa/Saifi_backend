@@ -22,7 +22,7 @@ def get_all_children():
 
 
 # =========================
-# ✅ Update Child ✅ هذا اللي كان ناقص فعليًا عندك
+# ✅ Update Child
 # =========================
 @router.put("/{child_id}")
 def update_child(child_id: UUID, data: dict):
@@ -35,17 +35,20 @@ def update_child(child_id: UUID, data: dict):
         return {"message": "Child updated successfully"}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Update failed: {str(e)}"
+        )
 
 
 # =========================
-# ✅ Get Children By Parent
+# ✅ Get Children By Parent ✅ (FIXED ✅)
 # =========================
 @router.get("/by-parent/{parent_id}")
 def get_children_by_parent(parent_id: UUID):
     try:
         children = ChildService.get_children_by_parent(str(parent_id))
-        return children
+        return {"data": children}   # ✅ هذا كان سبب اختفاء الأطفال
     except Exception as e:
         raise HTTPException(
             status_code=500,
