@@ -165,3 +165,23 @@ class AuthService:
         finally:
             cur.close()
             conn.close()
+@staticmethod
+def authenticate_parent(identifier: str, password: str):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    query = """
+        SELECT * FROM parents
+        WHERE email = %s OR phone = %s
+    """
+    cur.execute(query, (identifier, identifier))
+    parent = cur.fetchone()
+
+    if not parent:
+        return None
+
+    stored_hash = parent["password_hash"].encode()
+    if not bcrypt.checkpw(password.encode(), stored_hash):
+        return None
+
+    return parent
