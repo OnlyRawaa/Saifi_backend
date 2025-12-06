@@ -8,6 +8,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:
 
+    # =========================
+    # ✅ HASH / VERIFY
+    # =========================
     @staticmethod
     def hash_password(password: str) -> str:
         return pwd_context.hash(password)
@@ -117,3 +120,69 @@ class AuthService:
             return None
 
         return parent
+
+    # =========================
+    # ✅ UPDATE PARENT (البيانات الأساسية)
+    # =========================
+    @staticmethod
+    def update_parent(parent_id: str, data: dict):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        if not data:
+            return False
+
+        fields = []
+        values = []
+
+        for key, value in data.items():
+            fields.append(f"{key} = %s")
+            values.append(value)
+
+        values.append(parent_id)
+
+        query = f"""
+            UPDATE parents
+            SET {', '.join(fields)}
+            WHERE parent_id = %s
+        """
+
+        try:
+            cur.execute(query, values)
+            conn.commit()
+            return cur.rowcount > 0
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+
+        finally:
+            cur.close()
+            conn.close()
+
+    # =========================
+    # ✅ UPDATE PARENT LOCATION
+    # =========================
+    @staticmethod
+    def update_parent_location(parent_id: str, lat: float, lng: float):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        try:
+            cur.execute("""
+                UPDATE parents
+                SET location_lat = %s,
+                    location_lng = %s
+                WHERE parent_id = %s
+            """, (lat, lng, parent_id))
+
+            conn.commit()
+            return cur.rowcount > 0
+
+        except Exception as e:
+            conn.rollback()
+            raise e
+
+        finally:
+            cur.close()
+            conn.close()
