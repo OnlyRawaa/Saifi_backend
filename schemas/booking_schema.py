@@ -1,25 +1,44 @@
 from pydantic import BaseModel, Field
 from uuid import UUID
-from datetime import date
-from typing import Literal
+from datetime import date, datetime
+from typing import Optional, Literal
 
 
 # =========================
-# ✅ CREATE BOOKING
+# ✅ CREATE BOOKING (FROM FLUTTER)
 # =========================
 class BookingCreate(BaseModel):
     parent_id: UUID
     child_id: UUID
     activity_id: UUID
-    provider_id: UUID
 
-    status: Literal["pending", "confirmed", "rejected"] = "pending"
-    booking_date: date = Field(..., example="2025-12-02")
+    start_date: date
+    end_date: date
+
+    notes: Optional[str] = None
 
 
 # =========================
-# ✅ UPDATE BOOKING STATUS
+# ✅ UPDATE BOOKING STATUS (PROVIDER)
 # =========================
 class BookingUpdate(BaseModel):
-    booking_id: UUID
     status: Literal["pending", "confirmed", "rejected"]
+
+
+# =========================
+# ✅ BOOKING RESPONSE (OUTPUT)
+# =========================
+class BookingOut(BaseModel):
+    booking_id: UUID
+
+    parent_id: UUID
+    child_id: UUID
+    activity_id: UUID
+
+    start_date: date
+    end_date: date
+    notes: Optional[str]
+
+    status: Literal["pending", "confirmed", "rejected"]
+
+    created_at: datetime
