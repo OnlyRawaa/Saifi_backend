@@ -7,23 +7,16 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
 
 # =========================
-# ✅ Create Booking
+# ✅ Create Booking (FROM FLUTTER)
 # =========================
-@router.post("/create")
+@router.post("/")
 def create_booking(data: BookingCreate):
     try:
-        booking_id = BookingService.create_booking(
-            data.parent_id,
-            data.child_id,
-            data.activity_id,
-            data.provider_id,      # ✅ كان مفقود
-            data.status,           # ✅ كان مفقود
-            data.booking_date      # ✅ كان مفقود
-        )
+        booking = BookingService.create_booking(data.model_dump())
 
         return {
             "message": "Booking created successfully",
-            "booking_id": booking_id
+            "booking": booking
         }
 
     except ValueError as e:
@@ -67,13 +60,13 @@ def get_child_bookings(child_id: UUID):
 
 
 # =========================
-# ✅ Update Booking Status
+# ✅ Update Booking Status (PROVIDER)
 # =========================
-@router.put("/update-status")
-def update_booking_status(data: BookingUpdate):
+@router.put("/{booking_id}/status")
+def update_booking_status(booking_id: UUID, data: BookingUpdate):
     try:
         updated = BookingService.update_booking_status(
-            data.booking_id,
+            str(booking_id),
             data.status
         )
 
@@ -93,6 +86,8 @@ def update_booking_status(data: BookingUpdate):
             status_code=500,
             detail=f"Update booking failed: {str(e)}"
         )
+
+
 # =========================
 # ✅ Get All Bookings By Activity (FOR PROVIDER)
 # =========================
