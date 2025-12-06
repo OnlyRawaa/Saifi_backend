@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import date, datetime
 from typing import Optional, Literal
@@ -11,10 +11,13 @@ class BookingCreate(BaseModel):
     parent_id: UUID
     child_id: UUID
     activity_id: UUID
+    provider_id: UUID
 
-    start_date: date
-    end_date: date
+    status: Literal["pending", "confirmed", "rejected"] = "pending"
+    booking_date: datetime
 
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     notes: Optional[str] = None
 
 
@@ -34,11 +37,14 @@ class BookingOut(BaseModel):
     parent_id: UUID
     child_id: UUID
     activity_id: UUID
-
-    start_date: date
-    end_date: date
-    notes: Optional[str]
+    provider_id: UUID
 
     status: Literal["pending", "confirmed", "rejected"]
+    booking_date: datetime
+
+    start_date: Optional[date]
+    end_date: Optional[date]
+    notes: Optional[str]
 
     created_at: datetime
+
