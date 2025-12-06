@@ -31,6 +31,13 @@ def create_booking(data: BookingCreate):
             status_code=500,
             detail=f"Create booking failed: {str(e)}"
         )
+@router.delete("/{booking_id}")
+def delete_booking(booking_id: UUID):
+    try:
+        BookingService.delete_booking(str(booking_id))
+        return {"message": "Booking deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # =========================
