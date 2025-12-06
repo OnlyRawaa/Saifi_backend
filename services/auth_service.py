@@ -58,6 +58,41 @@ class AuthService:
         finally:
             cur.close()
             conn.close()
+@staticmethod
+def update_parent(parent_id: str, data: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    if not data:
+        return False
+
+    fields = []
+    values = []
+
+    for key, value in data.items():
+        fields.append(f"{key} = %s")
+        values.append(value)
+
+    values.append(parent_id)
+
+    query = f"""
+        UPDATE parents
+        SET {', '.join(fields)}
+        WHERE parent_id = %s
+    """
+
+    try:
+        cur.execute(query, values)
+        conn.commit()
+        return cur.rowcount > 0
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        cur.close()
+        conn.close()
 
     # =========================
     # ✅ GET PARENT BY ID
