@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 class BookingService:
 
     # =========================
-    # ✅ Create Booking (FIXED)
+    # ✅ Create Booking
     # =========================
     @staticmethod
     def create_booking(
@@ -14,26 +14,31 @@ class BookingService:
         activity_id: str,
         provider_id: str,
         status: str,
-        booking_date
+        booking_date,
+        start_date=None,
+        end_date=None,
+        notes=None
     ):
         conn = get_connection()
         cur = conn.cursor()
 
         try:
             cur.execute("""
-    INSERT INTO bookings 
-    (parent_id, child_id, activity_id, provider_id, status, booking_date)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    RETURNING booking_id;
-""", (
-    str(parent_id),     # ✅ تحويـل UUID إلى str
-    str(child_id),      # ✅
-    str(activity_id),   # ✅
-    str(provider_id),   # ✅
-    status,
-    booking_date
-))
-
+                INSERT INTO bookings 
+                (parent_id, child_id, activity_id, provider_id, status, booking_date, start_date, end_date, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING booking_id;
+            """, (
+                str(parent_id),
+                str(child_id),
+                str(activity_id),
+                str(provider_id),
+                status,
+                booking_date,
+                start_date,
+                end_date,
+                notes
+            ))
 
             booking_id = cur.fetchone()[0]
             conn.commit()
@@ -46,7 +51,6 @@ class BookingService:
         finally:
             cur.close()
             conn.close()
-
 
     # =========================
     # ✅ Get Parent Bookings
@@ -65,6 +69,9 @@ class BookingService:
                 b.provider_id,
                 b.status,
                 b.booking_date,
+                b.start_date,
+                b.end_date,
+                b.notes,
 
                 c.first_name || ' ' || c.last_name AS child_name,
                 a.title AS activity_title,
@@ -83,7 +90,6 @@ class BookingService:
         conn.close()
         return rows
 
-
     # =========================
     # ✅ Get Child Bookings
     # =========================
@@ -101,6 +107,9 @@ class BookingService:
                 provider_id,
                 status,
                 booking_date,
+                start_date,
+                end_date,
+                notes,
                 created_at
             FROM bookings
             WHERE child_id = %s
@@ -111,7 +120,6 @@ class BookingService:
         cur.close()
         conn.close()
         return rows
-
 
     # =========================
     # ✅ Update Booking Status
@@ -133,34 +141,38 @@ class BookingService:
         conn.close()
 
         return updated > 0
-# =========================
-# ✅ Get Bookings By Activity (FOR PROVIDER)
-# =========================
-@staticmethod
-def get_bookings_by_activity(activity_id: str):
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("""
-        SELECT
-            b.booking_id,
-            b.parent_id,
-            b.child_id,
-            b.activity_id,
-            b.provider_id,
-            b.status,
-            b.booking_date,
+    # =========================
+    # ✅ Get Bookings By Activity (FOR PROVIDER)
+    # =========================
+    @staticmethod
+    def get_bookings_by_activity(activity_id: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
-            c.first_name || ' ' || c.last_name AS child_name,
-            c.gender AS child_gender
+        cur.execute("""
+            SELECT
+                b.booking_id,
+                b.parent_id,
+                b.child_id,
+                b.activity_id,
+                b.provider_id,
+                b.status,
+                b.booking_date,
+                b.start_date,
+                b.end_date,
+                b.notes,
 
-        FROM bookings b
-        JOIN children c ON b.child_id = c.child_id
-        WHERE b.activity_id = %s
-        ORDER BY b.created_at DESC;
-    """, (activity_id,))
+                c.first_name || ' ' || c.last_name AS child_name,
+                c.gender AS child_gender
 
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return rows
+            FROM bookings b
+            JOIN children c ON b.child_id = c.child_id
+            WHERE b.activity_id = %s
+            ORDER BY b.created_at DESC;
+        """, (activity_id,))
+
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
