@@ -7,47 +7,30 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
 
 # =========================
-# ✅ Create Booking (FROM FLUTTER)
+# ✅ Create Booking (FROM FLUTTER) ✅✅✅
 # =========================
-@staticmethod
-def create_booking(data: dict):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO bookings (
-            parent_id,
-            child_id,
-            activity_id,
-            provider_id,
-            status,
-            booking_date,
-            start_date,
-            end_date,
-            notes
+@router.post("")
+def create_booking(data: BookingCreate):
+    try:
+        booking_id = BookingService.create_booking(
+            str(data.parent_id),
+            str(data.child_id),
+            str(data.activity_id),
+            str(data.provider_id),
+            data.status,
+            data.booking_date
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        RETURNING booking_id;
-    """, (
-        data["parent_id"],
-        data["child_id"],
-        data["activity_id"],
-        data["provider_id"],
-        data.get("status", "pending"),
-        data["booking_date"],
-        data.get("start_date"),
-        data.get("end_date"),
-        data.get("notes"),
-    ))
 
-    booking_id = cur.fetchone()[0]
+        return {
+            "message": "Booking created successfully",
+            "booking_id": booking_id
+        }
 
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return booking_id
-
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Create booking failed: {str(e)}"
+        )
 
 
 # =========================
