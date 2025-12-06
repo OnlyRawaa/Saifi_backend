@@ -89,6 +89,33 @@ class BookingService:
         cur.close()
         conn.close()
         return rows
+# =========================
+# ✅ Delete Booking (PARENT)
+# =========================
+@staticmethod
+def delete_booking(booking_id: str):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            DELETE FROM bookings
+            WHERE booking_id = %s;
+        """, (booking_id,))
+
+        affected = cur.rowcount
+        conn.commit()
+
+        if affected == 0:
+            raise Exception("Booking not found")
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        cur.close()
+        conn.close()
 
     # =========================
     # ✅ Get Child Bookings
