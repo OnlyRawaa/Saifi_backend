@@ -65,24 +65,18 @@ def get_children_by_parent(parent_id: UUID):
 @router.get("/{child_id}/initial-recommendations")
 def initial_recommendations(child_id: UUID):
     try:
-        # 1️⃣ نجيب الطفل مع موقع الـ Parent
         child = ChildService.get_child_with_parent_location(str(child_id))
 
         if not child:
             raise HTTPException(status_code=404, detail="Child not found")
 
-        # 2️⃣ نحسب العمر من تاريخ الميلاد
-    
-   birth = child["birthdate"]  # ✅ هذا date جاهز من PostgreSQL
+        birth = child["birthdate"]  # هذا بالفعل date من PostgreSQL
 
-    today = date.today()
-    age = today.year - birth.year - (
-        (today.month, today.day) < (birth.month, birth.day)
-    )
+        today = date.today()
+        age = today.year - birth.year - (
+            (today.month, today.day) < (birth.month, birth.day)
+        )
 
-
-
-        # 3️⃣ نجيب الأنشطة القريبة والمناسبة
         activities = ActivityService.get_filtered_activities_by_provider_location(
             parent_lat=child["parent_lat"],
             parent_lng=child["parent_lng"],
@@ -92,7 +86,7 @@ def initial_recommendations(child_id: UUID):
 
         return {
             "type": "cold_start",
-            "child_id": child_id,
+            "child_id": str(child_id),
             "recommendations": activities
         }
 
@@ -103,6 +97,7 @@ def initial_recommendations(child_id: UUID):
             status_code=500,
             detail=f"Failed to generate recommendations: {str(e)}"
         )
+
 # =========================
 # ✅ Create Child
 # =========================
