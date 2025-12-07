@@ -135,6 +135,7 @@ class ActivityService:
   # =========================
     # ✅ Get Filtered Activities By Provider Location (For AI Cold Start)
     # =========================
+
     @staticmethod
     def get_filtered_activities_by_provider_location(parent_lat, parent_lng, age, gender):
         conn = get_connection()
@@ -144,13 +145,13 @@ class ActivityService:
             cur.execute("""
                 SELECT 
                     a.*,
-                    p.lat AS provider_lat,
-                    p.lng AS provider_lng,
+                    p.location_lat AS provider_lat,
+                    p.location_lng AS provider_lng,
                     (
                         6371 * acos(
-                            cos(radians(%s)) * cos(radians(p.lat)) *
-                            cos(radians(p.lng) - radians(%s)) +
-                            sin(radians(%s)) * sin(radians(p.lat))
+                            cos(radians(%s)) * cos(radians(p.location_lat)) *
+                            cos(radians(p.location_lng) - radians(%s)) +
+                            sin(radians(%s)) * sin(radians(p.location_lat))
                         )
                     ) AS distance_km
                 FROM activities a
@@ -176,6 +177,7 @@ class ActivityService:
         finally:
             cur.close()
             conn.close()
+
     # =========================
     # ✅ Update Activity ✅
     # =========================
