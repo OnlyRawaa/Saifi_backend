@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from services.child_service import ChildService
 from schemas.child_schema import ChildCreate
+from datetime import datetime
+from services.activity_service import ActivityService
+
 from uuid import UUID
 
 router = APIRouter(prefix="/children", tags=["Children"])
@@ -56,6 +59,46 @@ def get_children_by_parent(parent_id: UUID):
         )
 
 
+# =========================
+# ✅ Initial Recommendations (Cold Start)
+# =========================
+@router.get("/{child_id}/initial-recommendations")
+def initial_recommendations(child_id: UUID):
+    try:
+        # 1️⃣ نجيب الطفل مع موقع الـ Parent
+        child = ChildService.get_child_with_parent_location(str(child_id))
+
+        if not child:
+            raise HTTPException(status_code=404, detail="Child not found")
+
+        # 2️⃣ نحسب العمر من تاريخ الميلاد
+        birth = datetime.strptime(child["birthdate"], "%Y-%m-%d")
+        today = datetime.today()
+        age = today.year - birth.year - (
+            (today.month, today.day) < (birth.month, birth.day)
+        )
+
+        # 3️⃣ نجيب الأنشطة القريبة والمناسبة
+        activities = ActivityService.get_filtered_activities_by_provider_location(
+            parent_lat=child["parent_lat"],
+            parent_lng=child["parent_lng"],
+            age=age,
+            gender=child["gender"]
+        )
+
+        return {
+            "type": "cold_start",
+            "child_id": child_id,
+            "recommendations": activities
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate recommendations: {str(e)}"
+        )
 # =========================
 # ✅ Create Child
 # =========================
