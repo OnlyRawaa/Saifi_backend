@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from services.child_service import ChildService
 from schemas.child_schema import ChildCreate
-from datetime import datetime
+from datetime import date
 from services.activity_service import ActivityService
 
 from uuid import UUID
@@ -72,13 +72,14 @@ def initial_recommendations(child_id: UUID):
             raise HTTPException(status_code=404, detail="Child not found")
 
         # 2️⃣ نحسب العمر من تاريخ الميلاد
-        birth = datetime.strptime(child["birthdate"], "%Y-%m-%d")
-        birth = child["birthdate"]  # ✅ بدون strptime
+    
+   birth = child["birthdate"]  # ✅ هذا date جاهز من PostgreSQL
 
-        today = date.today()
-        age = today.year - birth.year - (
-            (today.month, today.day) < (birth.month, birth.day)
-        )
+    today = date.today()
+    age = today.year - birth.year - (
+        (today.month, today.day) < (birth.month, birth.day)
+    )
+
 
 
         # 3️⃣ نجيب الأنشطة القريبة والمناسبة
