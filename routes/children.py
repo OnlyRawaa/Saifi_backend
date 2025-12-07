@@ -73,10 +73,13 @@ def initial_recommendations(child_id: UUID):
 
         # 2️⃣ نحسب العمر من تاريخ الميلاد
         birth = datetime.strptime(child["birthdate"], "%Y-%m-%d")
-        today = datetime.today()
+        birth = child["birthdate"]  # ✅ بدون strptime
+
+        today = date.today()
         age = today.year - birth.year - (
             (today.month, today.day) < (birth.month, birth.day)
         )
+
 
         # 3️⃣ نجيب الأنشطة القريبة والمناسبة
         activities = ActivityService.get_filtered_activities_by_provider_location(
