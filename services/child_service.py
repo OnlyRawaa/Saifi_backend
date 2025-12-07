@@ -104,6 +104,32 @@ class ChildService:
         finally:
             cur.close()
             conn.close()
+    # =========================
+    # ✅ Get Child With Parent Location (For AI Cold Start)
+    # =========================
+    @staticmethod
+    def get_child_with_parent_location(child_id: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        try:
+            cur.execute("""
+                SELECT 
+                    c.child_id,
+                    c.birthdate,
+                    c.gender,
+                    p.lat AS parent_lat,
+                    p.lng AS parent_lng
+                FROM children c
+                JOIN parents p ON c.parent_id = p.parent_id
+                WHERE c.child_id = %s;
+            """, (child_id,))
+
+            return cur.fetchone()
+
+        finally:
+            cur.close()
+            conn.close()
 
 
     # =========================
