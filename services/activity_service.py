@@ -55,6 +55,25 @@ class ActivityService:
             cur.close()
             conn.close()
 
+            
+            @staticmethod
+            def delete_activity(activity_id: str):
+                conn = get_connection()
+                cur = conn.cursor()
+            
+                cur.execute("""
+                    DELETE FROM activities
+                    WHERE activity_id = %s
+                """, (activity_id,))
+            
+                deleted = cur.rowcount > 0
+            
+                conn.commit()
+                cur.close()
+                conn.close()
+            
+                return deleted
+
     # =========================
     # ✅ Get All Active Activities
     # =========================
