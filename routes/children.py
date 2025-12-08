@@ -43,21 +43,18 @@ def update_child(child_id: UUID, data: dict):
             detail=f"Update failed: {str(e)}"
         )
 
+
 # =========================
-# ✅ delete Child
+# ✅ Delete Child
 # =========================
-@router.delete("/children/{child_id}")
-def delete_child(child_id: str):
-    try:
-        deleted = ChildService.delete_child(child_id)
+@router.delete("/{child_id}")
+def delete_child(child_id: UUID):
+    deleted = ChildService.delete_child(str(child_id))
 
-        if not deleted:
-            raise HTTPException(status_code=404, detail="Child not found")
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Child not found")
 
-        return {"message": "Child deleted successfully"}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "Child deleted successfully"}
 # =========================
 # ✅ Get Children By Parent ✅ (FIXED ✅)
 # =========================
