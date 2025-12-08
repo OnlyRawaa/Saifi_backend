@@ -102,6 +102,7 @@ def initial_recommendations(child_id: UUID):
 # ✅ Create Child
 # =========================
 @router.post("/create")
+@router.post("/create")
 def create_child(child: ChildCreate):
     try:
         new_id = ChildService.create_child(child.dict())
@@ -109,8 +110,18 @@ def create_child(child: ChildCreate):
             "message": "Child created successfully",
             "child_id": new_id
         }
+
     except Exception as e:
+        # ✅ Duplicate child case
+        if "already exists" in str(e):
+            raise HTTPException(
+                status_code=409,
+                detail="Child already exists with same name, birthdate, and gender"
+            )
+
+        # ✅ Any other unexpected error
         raise HTTPException(
             status_code=500,
             detail=f"Failed to create child: {str(e)}"
         )
+
