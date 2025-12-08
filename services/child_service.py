@@ -24,8 +24,26 @@ class ChildService:
         conn.close()
 
         return rows
+    # =========================
+    # ✅ delete_child
+    # =========================
+    @staticmethod
+    def delete_child(child_id: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
+        cur.execute(
+            "DELETE FROM children WHERE child_id = %s RETURNING child_id",
+            (child_id,)
+        )
 
+        deleted = cur.fetchone()
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return deleted
     # =========================
     # ✅ Get Children By Parent
     # =========================
