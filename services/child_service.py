@@ -59,7 +59,7 @@ class ChildService:
 
 
     # =========================
-    # ✅ Create Child
+    # ✅ Create Child (WITH DUPLICATE CHECK)
     # =========================
     @staticmethod
     def create_child(data: dict):
@@ -67,10 +67,32 @@ class ChildService:
         cur = conn.cursor()
 
         child_id = str(uuid.uuid4())
-        interests = data.get("interests") or []   # ✅ تحصين
+        interests = data.get("interests") or []
         notes = data.get("notes")
 
         try:
+            # ✅ 1. Check if child already exists
+            cur.execute("""
+                SELECT 1
+                FROM children
+                WHERE 
+                    parent_id = %s
+                AND first_name = %s
+                AND last_name = %s
+                AND birthdate = %s
+                AND gender = %s
+            """, (
+                data["parent_id"],
+                data["first_name"],
+                data["last_name"],
+                data["birthdate"],
+                data["gender"]
+            ))
+
+            if cur.fetchone():
+                raise Exception("Child already exists with same name, birthdate, and gender")
+
+            # ✅ 2. Insert if not duplicate
             cur.execute("""
                 INSERT INTO children (
                     child_id,
@@ -104,6 +126,7 @@ class ChildService:
         finally:
             cur.close()
             conn.close()
+
     # =========================
     # ✅ Get Child With Parent Location (For AI Cold Start)
     # =========================
