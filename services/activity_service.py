@@ -9,100 +9,99 @@ class ActivityService:
     # =========================
     @staticmethod
     def create_activity(data: dict):
-    conn = get_connection()
-    cur = conn.cursor()
+        conn = get_connection()
+        cur = conn.cursor()
 
-    try:
-        # =========================
-        # ✅ Duplicate prevention check
-        # (Title + Dates + Gender + Same Provider)
-        # =========================
-        cur.execute("""
-            SELECT 1
-            FROM activities
-            WHERE provider_id = %s
-              AND LOWER(TRIM(title)) = LOWER(TRIM(%s))
-              AND start_date = %s
-              AND end_date = %s
-              AND gender = %s
-        """, (
-            data["provider_id"],
-            data["title"],
-            data.get("start_date"),
-            data.get("end_date"),
-            data["gender"],
-        ))
+        try:
+            # =========================
+            # ✅ Duplicate prevention check
+            # =========================
+            cur.execute("""
+                SELECT 1
+                FROM activities
+                WHERE provider_id = %s
+                  AND LOWER(TRIM(title)) = LOWER(TRIM(%s))
+                  AND start_date = %s
+                  AND end_date = %s
+                  AND gender = %s
+            """, (
+                data["provider_id"],
+                data["title"],
+                data.get("start_date"),
+                data.get("end_date"),
+                data["gender"],
+            ))
 
-        exists = cur.fetchone()
-        if exists:
-            raise ValueError("Duplicate activity detected")
+            exists = cur.fetchone()
+            if exists:
+                raise ValueError("Duplicate activity detected")
 
-        # =========================
-        # ✅ Insert activity only after confirming it is not duplicated
-        # =========================
-        cur.execute("""
-            INSERT INTO activities (
-                provider_id,
-                title,
-                description,
-                price,
-                gender,
-                age_from,
-                age_to,
-                capacity,
-                duration,
-                type,
-                status,
-                start_date,
-                end_date
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING activity_id;
-        """, (
-            data["provider_id"],
-            data["title"],
-            data.get("description"),
-            data["price"],
-            data["gender"],
-            data["age_from"],
-            data["age_to"],
-            data["capacity"],
-            data["duration"],
-            data["type"],
-            data.get("status", True),
-            data.get("start_date"),
-            data.get("end_date")
-        ))
+            # =========================
+            # ✅ Insert activity
+            # =========================
+            cur.execute("""
+                INSERT INTO activities (
+                    provider_id,
+                    title,
+                    description,
+                    price,
+                    gender,
+                    age_from,
+                    age_to,
+                    capacity,
+                    duration,
+                    type,
+                    status,
+                    start_date,
+                    end_date
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING activity_id;
+            """, (
+                data["provider_id"],
+                data["title"],
+                data.get("description"),
+                data["price"],
+                data["gender"],
+                data["age_from"],
+                data["age_to"],
+                data["capacity"],
+                data["duration"],
+                data["type"],
+                data.get("status", True),
+                data.get("start_date"),
+                data.get("end_date")
+            ))
 
-        activity_id = cur.fetchone()[0]
-        conn.commit()
-        return activity_id
+            activity_id = cur.fetchone()[0]
+            conn.commit()
+            return activity_id
 
-    finally:
-        cur.close()
-        conn.close()
-
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
-    # ✅ Delete Activity ✅✅✅
+    # ✅ Delete Activity
     # =========================
     @staticmethod
     def delete_activity(activity_id: str):
         conn = get_connection()
         cur = conn.cursor()
 
-        cur.execute("""
-            DELETE FROM activities
-            WHERE activity_id = %s::uuid
-        """, (activity_id,))
+        try:
+            cur.execute("""
+                DELETE FROM activities
+                WHERE activity_id = %s::uuid
+            """, (activity_id,))
 
-        deleted = cur.rowcount > 0
+            deleted = cur.rowcount > 0
+            conn.commit()
+            return deleted
 
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return deleted
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
     # ✅ Get All Active Activities
@@ -153,7 +152,6 @@ class ActivityService:
                 "SELECT * FROM activities WHERE activity_id = %s;",
                 (activity_id,)
             )
-
             return cur.fetchone()
 
         finally:
@@ -161,7 +159,7 @@ class ActivityService:
             conn.close()
 
     # =========================
-    # ✅ Get Activities By Provider ✅
+    # ✅ Get Activities By Provider
     # =========================
     @staticmethod
     def get_activities_by_provider(provider_id: str):
@@ -181,10 +179,10 @@ class ActivityService:
         finally:
             cur.close()
             conn.close()
-  # =========================
-    # ✅ Get Filtered Activities By Provider Location (For AI Cold Start)
-    # =========================
 
+    # =========================
+    # ✅ Get Filtered Activities By Provider Location
+    # =========================
     @staticmethod
     def get_filtered_activities_by_provider_location(parent_lat, parent_lng, age, gender):
         conn = get_connection()
@@ -228,7 +226,7 @@ class ActivityService:
             conn.close()
 
     # =========================
-    # ✅ Update Activity ✅
+    # ✅ Update Activity
     # =========================
     @staticmethod
     def update_activity(activity_id: str, data: dict):
