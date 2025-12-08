@@ -24,6 +24,27 @@ def add_activity(data: ActivityCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Create activity failed: {str(e)}")
 
+# =========================
+# ✅ Delete Activity
+# =========================
+@router.delete("/{activity_id}")
+def delete_activity(activity_id: UUID):
+    try:
+        deleted = ActivityService.delete_activity(str(activity_id))
+
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Activity not found")
+
+        return {"message": "Activity deleted successfully"}
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Delete failed: {str(e)}"
+        )
 
 # =========================
 # ✅ Get All Activities
