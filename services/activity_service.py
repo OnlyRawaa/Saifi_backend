@@ -9,53 +9,79 @@ class ActivityService:
     # =========================
     @staticmethod
     def create_activity(data: dict):
-        conn = get_connection()
-        cur = conn.cursor()
+    conn = get_connection()
+    cur = conn.cursor()
 
-        try:
-            cur.execute("""
-                INSERT INTO activities (
-                    provider_id,
-                    title,
-                    description,
-                    price,
-                    gender,
-                    age_from,
-                    age_to,
-                    capacity,
-                    duration,
-                    type,
-                    status,
-                    start_date,
-                    end_date
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING activity_id;
-            """, (
-                data["provider_id"],
-                data["title"],
-                data.get("description"),
-                data["price"],
-                data["gender"],
-                data["age_from"],
-                data["age_to"],
-                data["capacity"],          # ✅ كانت سبب الخراب
-                data["duration"],
-                data["type"],
-                data.get("status", True),
-                data.get("start_date"),
-                data.get("end_date")
-            ))
+    try:
+        # =========================
+        # ✅ Duplicate prevention check
+        # (Title + Dates + Gender + Same Provider)
+        # =========================
+        cur.execute("""
+            SELECT 1
+            FROM activities
+            WHERE provider_id = %s
+              AND LOWER(TRIM(title)) = LOWER(TRIM(%s))
+              AND start_date = %s
+              AND end_date = %s
+              AND gender = %s
+        """, (
+            data["provider_id"],
+            data["title"],
+            data.get("start_date"),
+            data.get("end_date"),
+            data["gender"],
+        ))
 
-            activity_id = cur.fetchone()[0]
-            conn.commit()
-            return activity_id
+        exists = cur.fetchone()
+        if exists:
+            raise ValueError("Duplicate activity detected")
 
-        finally:
-            cur.close()
-            conn.close()
+        # =========================
+        # ✅ Insert activity only after confirming it is not duplicated
+        # =========================
+        cur.execute("""
+            INSERT INTO activities (
+                provider_id,
+                title,
+                description,
+                price,
+                gender,
+                age_from,
+                age_to,
+                capacity,
+                duration,
+                type,
+                status,
+                start_date,
+                end_date
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING activity_id;
+        """, (
+            data["provider_id"],
+            data["title"],
+            data.get("description"),
+            data["price"],
+            data["gender"],
+            data["age_from"],
+            data["age_to"],
+            data["capacity"],
+            data["duration"],
+            data["type"],
+            data.get("status", True),
+            data.get("start_date"),
+            data.get("end_date")
+        ))
 
-            
+        activity_id = cur.fetchone()[0]
+        conn.commit()
+        return activity_id
+
+    finally:
+        cur.close()
+        conn.close()
+
 
     # =========================
     # ✅ Delete Activity ✅✅✅
