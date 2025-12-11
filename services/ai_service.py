@@ -1,5 +1,5 @@
 import pickle
-from db.connection import get_db_connection
+from db.connection import get_connection
 
 
 class AIService:
@@ -17,11 +17,11 @@ class AIService:
             raise Exception(f"Failed to load AI model: {str(e)}")
 
     # ======================================
-    # Fetch children linked to a parent
+    # Fetch children belonging to a parent
     # ======================================
     @staticmethod
     def get_children(parent_id: str):
-        conn = get_db_connection()
+        conn = get_connection()
         cur = conn.cursor()
 
         cur.execute(
@@ -51,7 +51,7 @@ class AIService:
     # ======================================
     @staticmethod
     def get_all_activities():
-        conn = get_db_connection()
+        conn = get_connection()
         cur = conn.cursor()
 
         cur.execute(
@@ -80,43 +80,40 @@ class AIService:
 
     # ======================================
     # Generate recommendations for one child
-    # (The trained model handles scoring logic)
     # ======================================
     @staticmethod
     def recommend_for_child(model, child, activities):
         try:
-            # Model must implement a method named "recommend"
-            recommendations = model.recommend(child, activities)
-            return recommendations
+            # Model must include a method named "recommend"
+            return model.recommend(child, activities)
         except Exception as e:
             raise Exception(f"AI recommendation error: {str(e)}")
 
     # ======================================
-    # Main function: Generate recommendations
-    # for all children belonging to a parent
+    # Generate recommendations for all children
     # ======================================
     @staticmethod
     def get_recommendations(parent_id: str):
 
-        # 1. Load the trained model
+        # 1. Load AI model
         model = AIService.load_model()
 
-        # 2. Fetch parent's children
+        # 2. Get parent's children
         children = AIService.get_children(parent_id)
 
         if not children:
             return []
 
-        # 3. Fetch activities from DB
+        # 3. Get all activities
         activities = AIService.get_all_activities()
 
         results = []
 
-        # 4. Run recommendations for each child
+        # 4. Generate recommendations for each child
         for child in children:
             child_recs = AIService.recommend_for_child(model, child, activities)
             results.extend(child_recs)
 
-        # 5. Remove duplicates using activity_id as key
+        # 5. Remove duplicates by activity_id
         unique = {item["activity_id"]: item for item in results}.values()
         return list(unique)
