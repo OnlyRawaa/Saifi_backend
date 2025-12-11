@@ -1,119 +1,149 @@
+import pandas as pd
 import pickle
-from db.connection import get_connection
+from database import database
+from scipy.sparse import csr_matrix
+import math
+import traceback
+import ast
+
+# Load model once
+with open("saifi_model.pkl", "rb") as f:
+    model = pickle.load(f)
+
+with open("child_encoder.pkl", "rb") as f:
+    child_encoder = pickle.load(f)
+
+with open("activity_encoder.pkl", "rb") as f:
+    activity_encoder = pickle.load(f)
+
+reverse_activity_map = {v: k for k, v in activity_encoder.items()}
 
 
-class AIService:
+async def load_dataset():
+    children = await database.fetch_all("""
+        SELECT child_id, age, gender, interests, lat as child_lat, lng as child_lng
+        FROM children
+    """)
 
-    # ======================================
-    # Load the AI recommendation model
-    # ======================================
-    @staticmethod
-    def load_model():
-        try:
-            with open("models/recommender.pkl", "rb") as f:
-                model = pickle.load(f)
-            return model
-        except Exception as e:
-            raise Exception(f"Failed to load AI model: {str(e)}")
+    activities = await database.fetch_all("""
+        SELECT activity_id, name AS activity_name, category, price, duration_hours,
+               min_age, max_age, lat AS activity_lat, lng AS activity_lng
+        FROM activities
+    """)
 
-    # ======================================
-    # Fetch children belonging to a parent
-    # ======================================
-    @staticmethod
-    def get_children(parent_id: str):
-        conn = get_connection()
-        cur = conn.cursor()
+    bookings = await database.fetch_all("""
+        SELECT child_id, activity_id, rating
+        FROM bookings
+        WHERE rating IS NOT NULL
+    """)
 
-        cur.execute(
-            """
-            SELECT child_id, age, gender
-            FROM children
-            WHERE parent_id = %s
-            """,
-            (parent_id,)
-        )
+    df = pd.DataFrame(bookings)
+    df = df.merge(pd.DataFrame(children), on="child_id")
+    df = df.merge(pd.DataFrame(activities), on="activity_id")
 
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
+    return df
 
-        return [
-            {
-                "child_id": r[0],
-                "age": r[1],
-                "gender": r[2]
-            }
-            for r in rows
-        ]
 
-    # ======================================
-    # Fetch all available activities
-    # ======================================
-    @staticmethod
-    def get_all_activities():
-        conn = get_connection()
-        cur = conn.cursor()
+def build_matrix(df):
+    users = df["child_id"].map(child_encoder)
+    items = df["activity_id"].map(activity_encoder)
 
-        cur.execute(
-            """
-            SELECT activity_id, title, category, age_from, age_to, gender, provider_id
-            FROM activities
-            """
-        )
+    alpha = 40
+    confidence = 1 + alpha * df["rating"]
 
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
+    matrix = csr_matrix(
+        (confidence, (users, items)),
+        shape=(len(child_encoder), len(activity_encoder))
+    )
 
-        return [
-            {
-                "activity_id": r[0],
-                "title": r[1],
-                "category": r[2],
-                "age_from": r[3],
-                "age_to": r[4],
-                "gender": r[5],
-                "provider_id": r[6],
-            }
-            for r in rows
-        ]
+    return matrix
 
-    # ======================================
-    # Generate recommendations for one child
-    # ======================================
-    @staticmethod
-    def recommend_for_child(model, child, activities):
-        try:
-            # Model must include a method named "recommend"
-            return model.recommend(child, activities)
-        except Exception as e:
-            raise Exception(f"AI recommendation error: {str(e)}")
 
-    # ======================================
-    # Generate recommendations for all children
-    # ======================================
-    @staticmethod
-    def get_recommendations(parent_id: str):
+def calc_distance(lat1, lon1, lat2, lon2):
+    try:
+        R = 6371
+        d_lat = math.radians(lat2 - lat1)
+        d_lon = math.radians(lon2 - lon1)
 
-        # 1. Load AI model
-        model = AIService.load_model()
+        a = (math.sin(d_lat / 2) ** 2 +
+             math.cos(math.radians(lat1)) *
+             math.cos(math.radians(lat2)) *
+             math.sin(d_lon / 2) ** 2)
 
-        # 2. Get parent's children
-        children = AIService.get_children(parent_id)
+        return 2 * R * math.asin(math.sqrt(a))
+    except:
+        return 9999
 
-        if not children:
+
+async def generate_recommendations(child_id: int, limit: int = 10):
+    try:
+        df = await load_dataset()
+        if df.empty:
             return []
 
-        # 3. Get all activities
-        activities = AIService.get_all_activities()
+        matrix = build_matrix(df)
+        df_unique = df.drop_duplicates(subset=["activity_id"])
+
+        if child_id not in child_encoder:
+            return []
+
+        user_idx = child_encoder[child_id]
+
+        recs = model.recommend(
+            user_idx,
+            matrix[user_idx],
+            N=50,
+            filter_already_liked_items=False
+        )
+
+        child = df[df["child_id"] == child_id].iloc[0]
+
+        lat = float(child["child_lat"])
+        lng = float(child["child_lng"])
 
         results = []
 
-        # 4. Generate recommendations for each child
-        for child in children:
-            child_recs = AIService.recommend_for_child(model, child, activities)
-            results.extend(child_recs)
+        for rec in recs:
+            item_idx = int(rec[0])
+            score = float(rec[1])
 
-        # 5. Remove duplicates by activity_id
-        unique = {item["activity_id"]: item for item in results}.values()
-        return list(unique)
+            if item_idx not in reverse_activity_map:
+                continue
+
+            activity_id = reverse_activity_map[item_idx]
+
+            act = df_unique[df_unique["activity_id"] == activity_id]
+            if act.empty:
+                continue
+
+            act = act.iloc[0]
+
+            dist = calc_distance(
+                lat, lng,
+                float(act["activity_lat"]),
+                float(act["activity_lng"])
+            )
+
+            results.append({
+                "activity_id": int(activity_id),
+                "activity_name": act["activity_name"],
+                "score": score,
+                "price": float(act["price"]),
+                "category": act["category"],
+                "duration_hours": int(act["duration_hours"]),
+                "distance_km": round(dist, 2),
+                "min_age": int(act["min_age"]),
+                "max_age": int(act["max_age"]),
+                "lat": float(act["activity_lat"]),
+                "lng": float(act["activity_lng"])
+            })
+
+        # sort: nearest, then highest score
+        results.sort(key=lambda x: (x["distance_km"], -x["score"]))
+
+        return results[:limit]
+
+    except Exception as e:
+        print("AI ERROR:", e)
+        traceback.print_exc()
+        return []
