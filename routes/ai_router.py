@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException
-from services.ai_service import AIService
+from fastapi import APIRouter
+from services.ai_service import generate_recommendations
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
-@router.get("/recommend/{parent_id}")
-def get_recommendations(parent_id: str):
-    try:
-        recs = AIService.get_recommendations(parent_id)
-        return {"recommendations": recs}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/recommend")
+async def recommend(child_id: int, limit: int = 10):
+    data = await generate_recommendations(child_id, limit)
+    return {
+        "child_id": child_id,
+        "recommendations": data
+    }
