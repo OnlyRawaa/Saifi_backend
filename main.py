@@ -6,8 +6,14 @@ from routes.providers import router as providers_router
 from routes.children import router as children_router
 from routes.activities import router as activities_router
 from routes.bookings import router as bookings_router
-from routes.ai_router import router as ai_router   # <<=== NEW
+from routes.ai_router import router as ai_router
 
+from services.ai_service import ai_service
+
+
+# =========================
+# APP INIT
+# =========================
 app = FastAPI(
     title="Saifi Backend",
     version="1.0.0",
@@ -15,11 +21,23 @@ app = FastAPI(
 )
 
 # =========================
+# STARTUP EVENTS
+# =========================
+@app.on_event("startup")
+async def startup():
+    # Load AI model & encoders
+    ai_service.load_assets()
+
+    # Load DB data & build matrix once
+    await ai_service.refresh_cache()
+
+
+# =========================
 # CORS
 # =========================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # tighten in production if you want
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,18 +51,26 @@ app.include_router(providers_router)
 app.include_router(children_router)
 app.include_router(activities_router)
 app.include_router(bookings_router)
-app.include_router(ai_router)  # <<=== NEW
+app.include_router(ai_router)
 
 # =========================
 # ROOT CHECK
 # =========================
 @app.get("/")
 def home():
-    return {"message": "Saifi API is live 🔥", "status": "ok"}
+    return {
+        "message": "Saifi API is live 🔥",
+        "status": "ok"
+    }
 
 # =========================
-# HEALTH CHECK
+# GLOBAL HEALTH CHECK
 # =========================
 @app.get("/health")
 def health():
-    return {"status": "healthy", "service": "saifi-backend"}
+    return {
+        "status": "healthy",
+        "service": "saifi-backend",
+        "ai_model_loaded": ai_service.model is not None,
+        "ai_matrix_loaded": ai_service.matrix is not None
+    }
