@@ -75,6 +75,20 @@ def load_assets_once() -> None:
 # =========================
 # Data loading + matrix build (cached)
 # =========================
+
+def fetch_all(query: str):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query)
+
+    columns = [desc[0] for desc in cur.description]
+    rows = [dict(zip(columns, row)) for row in cur.fetchall()]
+
+    cur.close()
+    conn.close()
+    return rows
+
+
 async def refresh_ai_cache(force: bool = False) -> None:
     """
     Loads children/activities/bookings from DB and builds the sparse matrix once.
@@ -94,18 +108,20 @@ async def refresh_ai_cache(force: bool = False) -> None:
         load_assets_once()
 
         # ---- fetch metadata ----
-        children = await database.fetch_all("""
+        children = fetch_all("""
             SELECT child_id::text AS child_id, age, gender, interests,
                    lat AS child_lat, lng AS child_lng
             FROM children
         """)
-        activities = await database.fetch_all("""
+        
+        activities = fetch_all("""
             SELECT activity_id::text AS activity_id, name AS activity_name, category,
                    price, duration_hours, min_age, max_age,
                    lat AS activity_lat, lng AS activity_lng
             FROM activities
         """)
-        bookings = await database.fetch_all("""
+        
+        bookings = fetch_all("""
             SELECT child_id::text AS child_id, activity_id::text AS activity_id, rating
             FROM bookings
             WHERE rating IS NOT NULL
