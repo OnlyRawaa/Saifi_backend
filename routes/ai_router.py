@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from services.ai_service import generate_recommendations
-from services.ai_cache import MODEL, MATRIX
+from services.ai_cache import STATE
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
