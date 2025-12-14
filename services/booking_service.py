@@ -153,8 +153,8 @@ class BookingService:
     # =========================
     # ✅ Update Booking Status
     # =========================
-     @staticmethod
-     def update_booking_status(booking_id: str, status: str):
+    @staticmethod
+    def update_booking_status(booking_id: str, status: str):
         conn = get_connection()
         cur = conn.cursor()
 
