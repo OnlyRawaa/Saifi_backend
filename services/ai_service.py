@@ -122,7 +122,7 @@ async def refresh_ai_cache(force: bool = False) -> None:
         """)
 
         
-           activities = fetch_all("""
+        activities = fetch_all("""
             SELECT
                 a.activity_id::text AS activity_id,
                 a.title AS activity_name,
