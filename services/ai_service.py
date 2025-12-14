@@ -109,10 +109,14 @@ async def refresh_ai_cache(force: bool = False) -> None:
 
         # ---- fetch metadata ----
         children = fetch_all("""
-            SELECT child_id::text AS child_id, age, gender, interests,
-                   lat AS child_lat, lng AS child_lng
-            FROM children
-        """)
+            SELECT
+                child_id::text AS child_id,
+                EXTRACT(YEAR FROM AGE(date_of_birth))::int AS age,
+                gender,
+                interests,
+                lat AS child_lat,
+                lng AS child_lng
+            FROM children """)
         
         activities = fetch_all("""
             SELECT activity_id::text AS activity_id, name AS activity_name, category,
