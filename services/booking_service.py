@@ -153,13 +153,12 @@ class BookingService:
     # =========================
     # ✅ Update Booking Status
     # =========================
-    @staticmethod
-    def update_booking_status(booking_id: str, status: str):
+ @staticmethod
+def update_booking_status(booking_id: str, status: str):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
-        # 1️⃣ Get activity_id for this booking (only if still pending)
         cur.execute("""
             SELECT activity_id
             FROM bookings
@@ -174,7 +173,6 @@ class BookingService:
 
         activity_id = row[0]
 
-        # 2️⃣ Lock activity row & check capacity
         cur.execute("""
             SELECT capacity
             FROM activities
@@ -189,20 +187,17 @@ class BookingService:
 
         capacity = capacity_row[0]
 
-        # 3️⃣ If approving, ensure capacity > 0
         if status == "approved":
             if capacity <= 0:
                 conn.rollback()
                 raise ValueError("No remaining capacity for this activity")
 
-            # Approve booking
             cur.execute("""
                 UPDATE bookings
                 SET status = 'approved'
                 WHERE booking_id = %s;
             """, (booking_id,))
 
-            # Decrease capacity
             cur.execute("""
                 UPDATE activities
                 SET capacity = capacity - 1
@@ -210,7 +205,6 @@ class BookingService:
             """, (activity_id,))
 
         elif status == "rejected":
-            # Reject booking (no capacity change)
             cur.execute("""
                 UPDATE bookings
                 SET status = 'rejected'
@@ -231,7 +225,6 @@ class BookingService:
     finally:
         cur.close()
         conn.close()
-
 
     # =========================
     # ✅ Get Bookings By Activity (FOR PROVIDER)
