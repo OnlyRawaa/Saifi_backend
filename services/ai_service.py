@@ -10,8 +10,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from scipy.sparse import csr_matrix
-
-from database import database  # databases.Database
+from db.connection import get_connection
 from services.ai_cache import STATE
 
 logger = logging.getLogger("saifi.ai")
