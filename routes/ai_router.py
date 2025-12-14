@@ -17,6 +17,7 @@ async def recommend(child_id: str, limit: int = 10):
 @router.get("/health")
 def ai_health():
     return {
-        "model_loaded": MODEL is not None,
-        "matrix_loaded": MATRIX is not None
+        "model_loaded": STATE.model is not None,
+        "matrix_loaded": STATE.matrix is not None
     }
+
