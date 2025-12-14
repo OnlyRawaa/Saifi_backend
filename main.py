@@ -8,7 +8,8 @@ from routes.activities import router as activities_router
 from routes.bookings import router as bookings_router
 from routes.ai_router import router as ai_router
 
-from services.ai_service import ai_service
+from services.ai_service import load_assets_once, refresh_ai_cache
+from services.ai_cache import STATE
 
 
 # =========================
@@ -26,10 +27,10 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup():
     # Load AI model & encoders
-    ai_service.load_assets()
+    load_assets_once()
 
     # Load DB data & build matrix once
-    await ai_service.refresh_cache()
+    await refresh_ai_cache(force=True)
 
 
 # =========================
@@ -71,6 +72,6 @@ def health():
     return {
         "status": "healthy",
         "service": "saifi-backend",
-        "ai_model_loaded": ai_service.model is not None,
-        "ai_matrix_loaded": ai_service.matrix is not None
+        "ai_model_loaded": STATE.model is not None,
+        "ai_matrix_loaded": STATE.matrix is not None
     }
