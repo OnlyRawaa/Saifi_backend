@@ -130,8 +130,8 @@ async def refresh_ai_cache(force: bool = False) -> None:
                 a.duration AS duration_hours,
                 a.age_from AS min_age,
                 a.age_to AS max_age,
-                pr.lat AS activity_lat,
-                pr.lng AS activity_lng
+                pr.location_lat AS lat,
+                pr.location_lng AS lng
             FROM activities a
             JOIN providers pr ON a.provider_id = pr.provider_id
         """)
