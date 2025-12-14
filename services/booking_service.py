@@ -153,78 +153,78 @@ class BookingService:
     # =========================
     # ✅ Update Booking Status
     # =========================
- @staticmethod
-def update_booking_status(booking_id: str, status: str):
-    conn = get_connection()
-    cur = conn.cursor()
+     @staticmethod
+     def update_booking_status(booking_id: str, status: str):
+        conn = get_connection()
+        cur = conn.cursor()
 
-    try:
-        cur.execute("""
-            SELECT activity_id
-            FROM bookings
-            WHERE booking_id = %s
-            AND status = 'pending';
-        """, (booking_id,))
-
-        row = cur.fetchone()
-        if not row:
-            conn.rollback()
-            return False
-
-        activity_id = row[0]
-
-        cur.execute("""
-            SELECT capacity
-            FROM activities
-            WHERE activity_id = %s
-            FOR UPDATE;
-        """, (activity_id,))
-
-        capacity_row = cur.fetchone()
-        if not capacity_row:
-            conn.rollback()
-            return False
-
-        capacity = capacity_row[0]
-
-        if status == "approved":
-            if capacity <= 0:
-                conn.rollback()
-                raise ValueError("No remaining capacity for this activity")
-
+        try:
             cur.execute("""
-                UPDATE bookings
-                SET status = 'approved'
-                WHERE booking_id = %s;
+                SELECT activity_id
+                FROM bookings
+                WHERE booking_id = %s
+                AND status = 'pending';
             """, (booking_id,))
 
+            row = cur.fetchone()
+            if not row:
+                conn.rollback()
+                return False
+
+            activity_id = row[0]
+
             cur.execute("""
-                UPDATE activities
-                SET capacity = capacity - 1
-                WHERE activity_id = %s;
+                SELECT capacity
+                FROM activities
+                WHERE activity_id = %s
+                FOR UPDATE;
             """, (activity_id,))
 
-        elif status == "rejected":
-            cur.execute("""
-                UPDATE bookings
-                SET status = 'rejected'
-                WHERE booking_id = %s;
-            """, (booking_id,))
+            capacity_row = cur.fetchone()
+            if not capacity_row:
+                conn.rollback()
+                return False
 
-        else:
+            capacity = capacity_row[0]
+
+            if status == "approved":
+                if capacity <= 0:
+                    conn.rollback()
+                    raise ValueError("No remaining capacity for this activity")
+
+                cur.execute("""
+                    UPDATE bookings
+                    SET status = 'approved'
+                    WHERE booking_id = %s;
+                """, (booking_id,))
+
+                cur.execute("""
+                    UPDATE activities
+                    SET capacity = capacity - 1
+                    WHERE activity_id = %s;
+                """, (activity_id,))
+
+            elif status == "rejected":
+                cur.execute("""
+                    UPDATE bookings
+                    SET status = 'rejected'
+                    WHERE booking_id = %s;
+                """, (booking_id,))
+
+            else:
+                conn.rollback()
+                raise ValueError("Invalid status value")
+
+            conn.commit()
+            return True
+
+        except Exception as e:
             conn.rollback()
-            raise ValueError("Invalid status value")
+            raise e
 
-        conn.commit()
-        return True
-
-    except Exception as e:
-        conn.rollback()
-        raise e
-
-    finally:
-        cur.close()
-        conn.close()
+        finally:
+            cur.close()
+            conn.close()
 
     # =========================
     # ✅ Get Bookings By Activity (FOR PROVIDER)
