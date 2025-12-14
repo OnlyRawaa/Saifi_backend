@@ -110,26 +110,47 @@ async def refresh_ai_cache(force: bool = False) -> None:
         # ---- fetch metadata ----
         children = fetch_all("""
             SELECT
-                child_id::text AS child_id,
-                EXTRACT(YEAR FROM AGE(birthdate))::int AS age,
-                gender,
-                interests,
-                lat AS child_lat,
-                lng AS child_lng
-            FROM children """)
+                c.child_id::text AS child_id,
+                EXTRACT(YEAR FROM AGE(c.birthdate))::int AS age,
+                c.gender,
+                c.interests,
+                pr.lat AS lat,
+                pr.lng AS lng
+            FROM children c
+            JOIN bookings b ON c.child_id = b.child_id
+            JOIN providers pr ON b.provider_id = pr.provider_id
+        """)
         
         activities = fetch_all("""
-            SELECT activity_id::text AS activity_id, name AS activity_name, category,
-                   price, duration_hours, min_age, max_age,
-                   lat AS activity_lat, lng AS activity_lng
-            FROM activities
+            SELECT
+                a.activity_id::text AS activity_id,
+                a.title AS activity_name,
+                a.type AS category,
+                a.price,
+                a.duration AS duration_hours,
+                a.age_from AS min_age,
+                a.age_to AS max_age,
+                pr.lat AS activity_lat,
+                pr.lng AS activity_lng
+            FROM activities a
+            JOIN providers pr ON a.provider_id = pr.provider_id
         """)
-        
+
         bookings = fetch_all("""
-            SELECT child_id::text AS child_id, activity_id::text AS activity_id, rating
+            SELECT child_id::text AS child_id, activity_id::text AS activity_id
             FROM bookings
+            
+        """)
+        feedback = fetch_all("""
+            SELECT
+                child_id::text AS child_id,
+                activity_id::text AS activity_id,
+                rating,
+                comment
+            FROM feedback
             WHERE rating IS NOT NULL
         """)
+
 
         # build meta dicts
         STATE.child_meta = {
