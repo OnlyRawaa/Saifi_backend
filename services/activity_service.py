@@ -128,7 +128,6 @@ class ActivityService:
                     status,
                     start_date,
                     end_date,
-                    created_at
                 FROM activities
                 WHERE status = true;
             """)
