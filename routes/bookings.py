@@ -13,12 +13,14 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 def create_booking(data: BookingCreate):
     try:
         booking_id = BookingService.create_booking(
-            str(data.parent_id),
-            str(data.child_id),
-            str(data.activity_id),
-            str(data.provider_id),
-            data.status,
-            data.booking_date
+            parent_id=str(data.parent_id),
+            child_id=str(data.child_id),
+            activity_id=str(data.activity_id),
+            provider_id=str(data.provider_id),
+            booking_date=data.booking_date,
+            start_date=data.start_date,
+            end_date=data.end_date,
+            notes=data.notes
         )
 
         return {
@@ -31,6 +33,11 @@ def create_booking(data: BookingCreate):
             status_code=500,
             detail=f"Create booking failed: {str(e)}"
         )
+
+
+# =========================
+# ✅ Delete Booking (PARENT)
+# =========================
 @router.delete("/{booking_id}")
 def delete_booking(booking_id: UUID):
     try:
@@ -38,8 +45,6 @@ def delete_booking(booking_id: UUID):
         return {"message": "Booking deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 # =========================
 # ✅ Get All Bookings By Parent
 # =========================
