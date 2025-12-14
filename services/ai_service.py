@@ -114,14 +114,15 @@ async def refresh_ai_cache(force: bool = False) -> None:
                 EXTRACT(YEAR FROM AGE(c.birthdate))::int AS age,
                 c.gender,
                 c.interests,
-                pr.lat AS lat,
-                pr.lng AS lng
+                pr.location_lat AS lat,
+                pr.location_lng AS lng
             FROM children c
             JOIN bookings b ON c.child_id = b.child_id
             JOIN providers pr ON b.provider_id = pr.provider_id
         """)
+
         
-        activities = fetch_all("""
+           activities = fetch_all("""
             SELECT
                 a.activity_id::text AS activity_id,
                 a.title AS activity_name,
@@ -130,8 +131,8 @@ async def refresh_ai_cache(force: bool = False) -> None:
                 a.duration AS duration_hours,
                 a.age_from AS min_age,
                 a.age_to AS max_age,
-                pr.location_lat AS lat,
-                pr.location_lng AS lng
+                pr.location_lat AS activity_lat,
+                pr.location_lng AS activity_lng
             FROM activities a
             JOIN providers pr ON a.provider_id = pr.provider_id
         """)
