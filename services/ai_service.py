@@ -111,7 +111,7 @@ async def refresh_ai_cache(force: bool = False) -> None:
         children = fetch_all("""
             SELECT
                 child_id::text AS child_id,
-                EXTRACT(YEAR FROM AGE(date_of_birth))::int AS age,
+                EXTRACT(YEAR FROM AGE(birthdate))::int AS age,
                 gender,
                 interests,
                 lat AS child_lat,
