@@ -127,7 +127,7 @@ class ActivityService:
                     type,
                     status,
                     start_date,
-                    end_date,
+                    end_date
                 FROM activities
                 WHERE status = true;
             """)
