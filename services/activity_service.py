@@ -170,7 +170,6 @@ class ActivityService:
                 SELECT *
                 FROM activities
                 WHERE provider_id = %s
-                ORDER BY created_at DESC;
             """, (provider_id,))
 
             return cur.fetchall()
