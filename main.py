@@ -26,11 +26,11 @@ app = FastAPI(
 # =========================
 @app.on_event("startup")
 async def startup():
-    # Load AI model & encoders
-    load_assets_once()
+    try:
+        await refresh_ai_cache(force=True)
+    except Exception as e:
+        print("AI cache skipped:", e)
 
-    # Load DB data & build matrix once
-    await refresh_ai_cache(force=True)
 
 
 # =========================
