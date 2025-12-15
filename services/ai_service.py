@@ -184,7 +184,7 @@ async def refresh_ai_cache(force: bool = False) -> None:
         pop_stats: Dict[str, Tuple[float, int]] = {}  # activity_id -> (sum_rating, count)
         for b in bookings:
             aid = b["activity_id"]
-            rt = float(b["rating"])
+            rt = float(b.get("rating", 0))
             s, c = pop_stats.get(aid, (0.0, 0))
             pop_stats[aid] = (s + rt, c + 1)
 
