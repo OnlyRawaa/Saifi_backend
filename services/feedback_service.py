@@ -7,7 +7,7 @@ class FeedbackService:
 
     @staticmethod
     def create_feedback(data: dict):
-        conn = get_db_connection()
+        conn = get_connection()
         cursor = conn.cursor()
 
         feedback_id = str(uuid4())
