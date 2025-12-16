@@ -34,6 +34,12 @@ def detect_intent(text: str, lang: str):
             "reply": "No problem! Let’s add a child to your profile.",
             "intent": "add_child"
         }
+    if "about" in text_lower:
+        return {
+            "reply": "You can find information about Saifi in the About & Terms section from the menu.",
+            "intent": None
+        }
+
 
     # 4️⃣ Dialogflow fallback
     session_client = dialogflow.SessionsClient()
