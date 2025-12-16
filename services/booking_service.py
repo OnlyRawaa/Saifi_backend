@@ -119,6 +119,44 @@ class BookingService:
             cur.close()
             conn.close()
 
+
+    # ================================
+    # ✅ Get All Bookings By Provider
+    # ================================
+    @staticmethod
+    def get_bookings_by_provider(provider_id: str):
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        cur.execute("""
+            SELECT
+                b.booking_id,
+                b.status,
+                b.booking_date,
+                b.created_at,
+
+                a.title AS activity_title,
+
+                c.first_name || ' ' || c.last_name AS child_name,
+                c.gender AS child_gender,
+                c.age AS child_age,
+
+                p.first_name || ' ' || p.last_name AS parent_name,
+                p.phone AS parent_phone
+
+            FROM bookings b
+            JOIN activities a ON b.activity_id = a.activity_id
+            JOIN children c ON b.child_id = c.child_id
+            JOIN parents p ON b.parent_id = p.parent_id
+            WHERE b.provider_id = %s
+            ORDER BY b.created_at DESC;
+        """, (provider_id,))
+
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
+
     # =========================
     # ✅ Get Child Bookings
     # =========================
