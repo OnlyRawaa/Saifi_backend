@@ -7,6 +7,7 @@ from routes.children import router as children_router
 from routes.activities import router as activities_router
 from routes.bookings import router as bookings_router
 from routes.ai_router import router as ai_router
+from routes.feedback import router as feedback_router
 
 from services.ai_service import load_assets_once, refresh_ai_cache
 from services.ai_cache import STATE
@@ -53,6 +54,7 @@ app.include_router(children_router)
 app.include_router(activities_router)
 app.include_router(bookings_router)
 app.include_router(ai_router)
+app.include_router(feedback_router)
 
 # =========================
 # ROOT CHECK
