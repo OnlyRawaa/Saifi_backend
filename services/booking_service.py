@@ -132,14 +132,11 @@ class BookingService:
             SELECT
                 b.booking_id,
                 b.status,
-                b.booking_date,
-                b.created_at,
 
                 a.title AS activity_title,
 
                 c.first_name || ' ' || c.last_name AS child_name,
                 c.gender AS child_gender,
-                c.age AS child_age,
 
                 p.first_name || ' ' || p.last_name AS parent_name,
                 p.phone AS parent_phone
