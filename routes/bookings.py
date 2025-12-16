@@ -107,13 +107,18 @@ def update_booking_status(booking_id: UUID, data: BookingUpdate):
 # =========================
 # ✅ Get All Bookings By Activity (FOR PROVIDER)
 # =========================
+
 @router.get("/activity/{activity_id}")
 def get_bookings_by_activity(activity_id: UUID):
     try:
-        return BookingService.get_bookings_by_activity(str(activity_id))
+        result = BookingService.get_bookings_by_activity(str(activity_id))
+        print("BOOKINGS RESULT 👉", result)
+        return result
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Fetch activity bookings failed: {str(e)}"
         )
+
+
