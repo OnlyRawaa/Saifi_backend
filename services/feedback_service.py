@@ -1,6 +1,5 @@
 from db.connection import get_connection
 from uuid import uuid4
-from datetime import datetime
 
 
 class FeedbackService:
@@ -22,9 +21,9 @@ class FeedbackService:
                 activity_id,
                 rating,
                 comment,
-                date
+                
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 feedback_id,
@@ -34,7 +33,6 @@ class FeedbackService:
                 str(data["activity_id"]),
                 data["rating"],
                 data.get("comment"),
-                datetime.utcnow(),
             )
         )
 
