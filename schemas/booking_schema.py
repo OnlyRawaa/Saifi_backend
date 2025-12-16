@@ -13,8 +13,7 @@ class BookingCreate(BaseModel):
     activity_id: UUID
     provider_id: UUID
 
-    status: Literal["pending", "confirmed", "rejected"] = "pending"
-    booking_date: datetime
+    status: Literal["pending", "approved", "rejected"] = "pending"
 
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -25,7 +24,7 @@ class BookingCreate(BaseModel):
 # ✅ UPDATE BOOKING STATUS (PROVIDER)
 # =========================
 class BookingUpdate(BaseModel):
-    status: Literal["pending", "confirmed", "rejected"]
+    status: Literal["pending", "approved", "rejected"]
 
 
 # =========================
@@ -39,8 +38,7 @@ class BookingOut(BaseModel):
     activity_id: UUID
     provider_id: UUID
 
-    status: Literal["pending", "confirmed", "rejected"]
-    booking_date: datetime
+    status: Literal["pending", "approved", "rejected"]
 
     start_date: Optional[date]
     end_date: Optional[date]
