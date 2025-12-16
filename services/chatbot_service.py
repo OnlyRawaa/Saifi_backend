@@ -34,11 +34,13 @@ def detect_intent(text: str, lang: str):
             "reply": "No problem! Let’s add a child to your profile.",
             "intent": "add_child"
         }
-    if "about" in text_lower:
+    if "about" in text_lower or "platform" in text_lower:
         return {
-            "reply": "You can find information about Saifi in the About & Terms section from the menu.",
+            "reply": "Saifi is a smart platform that helps parents discover, compare, and manage summer activities for their children. "
+                 "You can find more details in Profile → About Us, where you can also view the Terms & Conditions.",
             "intent": None
-        }
+    }
+
 
 
     # 4️⃣ Dialogflow fallback
