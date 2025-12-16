@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routes import chatbot
 
 from routes.parents import router as parents_router
 from routes.providers import router as providers_router
@@ -55,6 +56,7 @@ app.include_router(activities_router)
 app.include_router(bookings_router)
 app.include_router(ai_router)
 app.include_router(feedback_router)
+app.include_router(chatbot.router)
 
 # =========================
 # ROOT CHECK
