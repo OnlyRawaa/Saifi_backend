@@ -7,6 +7,12 @@ PROJECT_ID = "saifibot-sxso"
 
 def detect_intent(text: str, lang: str):
     text_lower = text.lower()
+    
+    if "manage" in text_lower and "booking" in text_lower:
+        return {
+            "reply": "Sure! Redirecting you to your bookings.",
+            "intent": "manage_booking"
+        }
 
     # 1️⃣ Book activity
     if "book" in text_lower:
