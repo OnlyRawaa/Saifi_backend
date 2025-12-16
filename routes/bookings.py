@@ -121,4 +121,17 @@ def get_bookings_by_activity(activity_id: UUID):
             detail=f"Fetch activity bookings failed: {str(e)}"
         )
 
+# =========================
+# ✅ Get All Bookings By Provider
+# =========================
+@router.get("/provider/{provider_id}")
+def get_bookings_by_provider(provider_id: UUID):
+    try:
+        return BookingService.get_bookings_by_provider(str(provider_id))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fetch provider bookings failed: {str(e)}"
+        )
+
 
