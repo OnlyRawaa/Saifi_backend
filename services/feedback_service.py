@@ -25,17 +25,16 @@ class FeedbackService:
                 date
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING feedback_id;
             """,
             (
                 feedback_id,
-                data["parent_id"],
-                data["child_id"],
-                data["provider_id"],
-                data["activity_id"],
+                str(data["parent_id"]),
+                str(data["child_id"]),
+                str(data["provider_id"]),
+                str(data["activity_id"]),
                 data["rating"],
                 data.get("comment"),
-                datetime.utcnow()
+                datetime.utcnow(),
             )
         )
 
