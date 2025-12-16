@@ -40,6 +40,12 @@ def detect_intent(text: str, lang: str):
                  "You can find more details in Profile → About Us, where you can also view the Terms & Conditions.",
             "intent": None
     }
+    if "kids" in text_lower or "children" in text_lower:
+        return {
+            "reply": "Here is the information about your children.",
+            "intent": "kids_information"
+        }
+
 
 
 
