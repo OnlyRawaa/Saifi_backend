@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
-from datetime import datetime
 
 
 class FeedbackCreate(BaseModel):
@@ -21,4 +20,3 @@ class FeedbackOut(BaseModel):
     activity_id: UUID
     rating: int
     comment: Optional[str]
-    date: datetime
