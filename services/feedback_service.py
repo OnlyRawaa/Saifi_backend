@@ -20,8 +20,7 @@ class FeedbackService:
                 provider_id,
                 activity_id,
                 rating,
-                comment,
-                
+                comment
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
