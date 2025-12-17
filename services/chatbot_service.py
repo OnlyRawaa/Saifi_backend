@@ -31,8 +31,7 @@ def detect_intent(text: str, lang: str):
     # =========================
     # ADD CHILD
     # =========================
-    if contains_any(text_lower, ["add", "create", "new"]) and \
-       contains_any(text_lower, ["child", "kid", "children", "son", "daughter"]):
+    if contains_any(text_lower, ["add child", "create child", "new child", "add kid"]):
         return {
             "reply": (
                 "Sure 👶 Here’s how to add a child:\n"
@@ -48,8 +47,7 @@ def detect_intent(text: str, lang: str):
     # =========================
     # TRACK BOOKINGS
     # =========================
-    if contains_any(text_lower, ["track", "view", "see", "check", "show"]) and \
-       contains_any(text_lower, ["booking", "bookings", "reservation", "reservations"]):
+    if contains_any(text_lower, ["booking", "bookings", "my bookings", "reservations"]):
         return {
             "reply": (
                 "Here’s how you can track your bookings 📅:\n"
@@ -64,7 +62,7 @@ def detect_intent(text: str, lang: str):
     # =========================
     # KIDS INFORMATION
     # =========================
-    if contains_any(text_lower, ["kids", "children", "my kids", "my children", "child info"]):
+    if contains_any(text_lower, ["kids info", "kids information", "my kids", "children info"]):
         return {
             "reply": (
                 "You can view your kids’ information by:\n"
