@@ -9,50 +9,64 @@ def detect_intent(text: str, lang: str):
     text_lower = text.lower()
 
     # BOOK ACTIVITY
+    # BOOK ACTIVITY
     if "book" in text_lower and "activity" in text_lower:
         return {
-            "reply":
-            "Okay 😊 Here’s how to book an activity:\n"
-            "• Home → Browse activities\n"
-            "• Select an activity\n"
-            "• Choose details\n"
-            "• Submit booking\n\n"
-            "Would you like me to take you there now?",
+            "reply": (
+                "Okay 😊 Here’s how to book an activity:\n"
+                "• Home → Browse activities\n"
+                "• Select an activity\n"
+                "• Choose the suitable details\n"
+                "• Confirm and submit the booking\n\n"
+                "I can take you directly to the activities page 👇"
+            ),
             "intent": "book_activity"
-        }
+            }
 
+
+    # ADD CHILD
     # ADD CHILD
     if "add" in text_lower and "child" in text_lower:
         return {
-            "reply":
-            "Sure 👶 Here’s how to add a child:\n"
-            "1. Open the children section.\n"
-            "2. Enter your child’s details.\n"
-            "3. Save the information.\n\n"
-            "Type 'yes' or 'forward' and I’ll take you there.",
+            "reply": (
+                "Sure 👶 Here’s how to add a child:\n"
+                "• Go to the Children section\n"
+                "• Tap the (+) button in the navigation bar\n"
+                "• Enter your child’s details\n"
+                "• Save the information\n\n"
+                "I can take you to the add child page 👇"
+            ),
             "intent": "add_child"
         }
 
+
+    # TRACK BOOKINGS
     # TRACK BOOKINGS
     if "track" in text_lower and "booking" in text_lower:
         return {
-            "reply":
-            "No problem 📅 You can track your bookings by:\n"
-            "1. Opening the bookings page.\n"
-            "2. Viewing all your current and past bookings.\n\n"
-            "Type 'yes' or 'forward' to go to your bookings.",
+            "reply": (
+                "No problem 📅 Here’s how to track your bookings:\n"
+                "• Home → My Bookings\n"
+                "• View all your current and past bookings\n\n"
+                "I can open your bookings page for you 👇"
+            ),
             "intent": "track_my_booking"
         }
 
+
+    # KIDS INFORMATION
     # KIDS INFORMATION
     if "kids" in text_lower or "children" in text_lower:
         return {
-            "reply":
-            "Here’s where you can view your kids’ information 🧒:\n"
-            "You’ll see all added children and their details.\n\n"
-            "Type 'yes' or 'forward' and I’ll take you there.",
+            "reply": (
+                "Here’s where you can view your kids’ information 🧒:\n"
+                "• Profile → Kids Information\n"
+                "• View all added children and their details\n\n"
+                "I can take you there now 👇"
+            ),
             "intent": "kids_information"
         }
+
 
     # ABOUT PLATFORM
     if "about" in text_lower or "platform" in text_lower:
