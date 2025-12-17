@@ -52,7 +52,10 @@ def detect_intent(text: str, lang: str):
        contains_any(text_lower, ["booking", "bookings", "reservation", "reservations"]):
         return {
             "reply": (
-                "You can track all your bookings here 📅\n\n"
+                "Here’s how you can track your bookings 📅:\n"
+                "• Go to the Home page\n"
+                "• Open My Bookings\n"
+                "• View all your current and past reservations\n\n"
                 "Tap the button below to view them 👇"
             ),
             "intent": "track_my_booking"
@@ -64,7 +67,10 @@ def detect_intent(text: str, lang: str):
     if contains_any(text_lower, ["kids", "children", "my kids", "my children", "child info"]):
         return {
             "reply": (
-                "Here’s where you can view your kids’ information 🧒\n\n"
+                "You can view your kids’ information by:\n"
+                "• Opening the Profile page\n"
+                "• Selecting Kids Information\n"
+                "• Viewing all added children and their details 🧒\n\n"
                 "Tap below to see their profiles 👇"
             ),
             "intent": "kids_information"
