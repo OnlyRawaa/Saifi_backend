@@ -13,7 +13,6 @@ class BookingService:
         child_id: str,
         activity_id: str,
         provider_id: str,
-        booking_date,
         start_date=None,
         end_date=None,
         notes=None
@@ -24,8 +23,8 @@ class BookingService:
         try:
             cur.execute("""
                 INSERT INTO bookings 
-                (parent_id, child_id, activity_id, provider_id, status, booking_date, start_date, end_date, notes)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (parent_id, child_id, activity_id, provider_id, status, start_date, end_date, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING booking_id;
             """, (
                 str(parent_id),
@@ -33,7 +32,6 @@ class BookingService:
                 str(activity_id),
                 str(provider_id),
                 'pending',
-                booking_date,
                 start_date,
                 end_date,
                 notes
@@ -67,7 +65,6 @@ class BookingService:
                 b.activity_id,
                 b.provider_id,
                 b.status,
-                b.booking_date,
                 b.start_date,
                 b.end_date,
                 b.notes,
@@ -81,7 +78,6 @@ class BookingService:
             JOIN children c ON b.child_id = c.child_id
             JOIN activities a ON b.activity_id = a.activity_id
             WHERE b.parent_id = %s
-            ORDER BY b.created_at DESC;
         """, (parent_id,))
 
         rows = cur.fetchall()
@@ -146,7 +142,6 @@ class BookingService:
             JOIN children c ON b.child_id = c.child_id
             JOIN parents p ON b.parent_id = p.parent_id
             WHERE b.provider_id = %s
-            ORDER BY b.created_at DESC;
         """, (provider_id,))
 
         rows = cur.fetchall()
@@ -170,14 +165,11 @@ class BookingService:
                 activity_id,
                 provider_id,
                 status,
-                booking_date,
                 start_date,
                 end_date,
                 notes,
-                created_at
             FROM bookings
             WHERE child_id = %s
-            ORDER BY created_at DESC;
         """, (child_id,))
 
         rows = cur.fetchall()
@@ -273,8 +265,6 @@ class BookingService:
             SELECT
                 b.booking_id,
                 b.status,
-                b.booking_date,
-                b.created_at,
 
                 c.first_name || ' ' || c.last_name AS child_name,
                 c.gender AS child_gender,
@@ -287,7 +277,6 @@ class BookingService:
             JOIN children c ON b.child_id = c.child_id
             JOIN parents p ON b.parent_id = p.parent_id
             WHERE b.activity_id = %s
-            ORDER BY b.created_at DESC;
         """, (activity_id,))
 
         rows = cur.fetchall()
