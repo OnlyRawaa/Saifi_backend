@@ -7,44 +7,69 @@ PROJECT_ID = "saifibot-sxso"
 
 def detect_intent(text: str, lang: str):
     text_lower = text.lower()
-    
-    if "manage" in text_lower and "booking" in text_lower:
-        return {
-            "reply": "Sure! Redirecting you to your bookings.",
-            "intent": "manage_booking"
-        }
 
-    # 1️⃣ Book activity
-    if "book" in text_lower:
+    # BOOK ACTIVITY
+    if "book" in text_lower and "activity" in text_lower:
         return {
-            "reply": "Great! Let’s book an activity. I’ll guide you step by step.",
+            "reply":
+            "Okay 😊 Here’s how to book an activity:\n"
+            "• Home → Browse activities\n"
+            "• Select an activity\n"
+            "• Choose details\n"
+            "• Submit booking\n\n"
+            "Would you like me to take you there now?",
             "intent": "book_activity"
         }
 
-    # 2️⃣ Browse activities
-    if any(word in text_lower for word in ["activity", "activities", "program", "programs"]):
-        return {
-            "reply": "Sure! I can help you with activities 😊 Would you like to browse activities or book one?",
-            "intent": "browse_activities"
-        }
-
-    # 3️⃣ Add child
+    # ADD CHILD
     if "add" in text_lower and "child" in text_lower:
         return {
-            "reply": "No problem! Let’s add a child to your profile.",
+            "reply":
+            "Sure 👶 Here’s how to add a child:\n"
+            "1. Open the children section.\n"
+            "2. Enter your child’s details.\n"
+            "3. Save the information.\n\n"
+            "Type 'yes' or 'forward' and I’ll take you there.",
             "intent": "add_child"
         }
-    if "about" in text_lower or "platform" in text_lower:
+
+    # TRACK BOOKINGS
+    if "track" in text_lower and "booking" in text_lower:
         return {
-            "reply": "Saifi is a smart platform that helps parents discover, compare, and manage summer activities for their children. "
-                 "You can find more details in Profile → About Us, where you can also view the Terms & Conditions.",
-            "intent": None
-    }
+            "reply":
+            "No problem 📅 You can track your bookings by:\n"
+            "1. Opening the bookings page.\n"
+            "2. Viewing all your current and past bookings.\n\n"
+            "Type 'yes' or 'forward' to go to your bookings.",
+            "intent": "track_my_booking"
+        }
+
+    # KIDS INFORMATION
     if "kids" in text_lower or "children" in text_lower:
         return {
-            "reply": "Here is the information about your children.",
+            "reply":
+            "Here’s where you can view your kids’ information 🧒:\n"
+            "You’ll see all added children and their details.\n\n"
+            "Type 'yes' or 'forward' and I’ll take you there.",
             "intent": "kids_information"
         }
+
+    # ABOUT PLATFORM
+    if "about" in text_lower or "platform" in text_lower:
+        return {
+            "reply":
+            "Saifi is a smart platform that helps parents discover, compare, and manage summer activities for their children. "
+            "You can find more details in Profile → About Us, where you can also view the Terms & Conditions.",
+            "intent": None
+        }
+
+    # FALLBACK
+    return {
+        "reply": "Sorry, I didn’t quite understand that. Could you clarify?",
+        "intent": None
+    }
+
+    
 
 
 
