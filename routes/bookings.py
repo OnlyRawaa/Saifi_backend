@@ -17,7 +17,6 @@ def create_booking(data: BookingCreate):
             child_id=str(data.child_id),
             activity_id=str(data.activity_id),
             provider_id=str(data.provider_id),
-            booking_date=data.booking_date,
             start_date=data.start_date,
             end_date=data.end_date,
             notes=data.notes
