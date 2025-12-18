@@ -31,7 +31,8 @@ def detect_intent(text: str, lang: str):
     # =========================
     # ADD CHILD
     # =========================
-    if contains_any(text_lower, ["add child", "create child", "new child", "add kid"]):
+    if contains_any(text_lower, ["add", "create", "new", "add"]): and \
+        contains_any(text_lower, ["child", "kid", "son", "children"]):
         return {
             "reply": (
                 "Sure 👶 Here’s how to add a child:\n"
