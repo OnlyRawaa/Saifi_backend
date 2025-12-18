@@ -1,5 +1,3 @@
-
-
 def normalize(text: str) -> str:
     return text.lower().strip()
 
@@ -14,8 +12,10 @@ def detect_intent(text: str, lang: str):
     # =========================
     # BOOK ACTIVITY
     # =========================
-    if contains_any(text_lower, ["book", "booking", "reserve", "reservation"]): and \
-       contains_any(text_lower, ["activity", "activities", "program", "class"]):
+    if (
+        contains_any(text_lower, ["book", "booking", "reserve", "reservation"])
+        and contains_any(text_lower, ["activity", "activities", "program", "class"])
+    ):
         return {
             "reply": (
                 "Okay 😊 Here’s how to book an activity:\n"
@@ -31,8 +31,10 @@ def detect_intent(text: str, lang: str):
     # =========================
     # ADD CHILD
     # =========================
-    if contains_any(text_lower, ["add", "create", "new", "add"]): and \
-        contains_any(text_lower, ["child", "kid", "son", "children"]):
+    if (
+        contains_any(text_lower, ["add", "create", "new"])
+        and contains_any(text_lower, ["child", "kid", "son", "children"])
+    ):
         return {
             "reply": (
                 "Sure 👶 Here’s how to add a child:\n"
@@ -48,7 +50,10 @@ def detect_intent(text: str, lang: str):
     # =========================
     # TRACK BOOKINGS
     # =========================
-    if contains_any(text_lower, ["booking", "bookings", "my bookings", "reservations"]):
+    if contains_any(
+        text_lower,
+        ["booking", "bookings", "my bookings", "reservation", "reservations"]
+    ):
         return {
             "reply": (
                 "Here’s how you can track your bookings 📅:\n"
@@ -63,7 +68,10 @@ def detect_intent(text: str, lang: str):
     # =========================
     # KIDS INFORMATION
     # =========================
-    if contains_any(text_lower, ["kids info", "kids information", "my kids", "children info"]):
+    if contains_any(
+        text_lower,
+        ["kids info", "kids information", "my kids", "children info"]
+    ):
         return {
             "reply": (
                 "You can view your kids’ information by:\n"
@@ -78,7 +86,10 @@ def detect_intent(text: str, lang: str):
     # =========================
     # ABOUT PLATFORM
     # =========================
-    if contains_any(text_lower, ["about", "platform", "saifi", "terms", "conditions"]):
+    if contains_any(
+        text_lower,
+        ["about", "platform", "saifi", "terms", "conditions"]
+    ):
         return {
             "reply": (
                 "Saifi helps parents discover and manage summer activities for their children.\n"
@@ -88,7 +99,7 @@ def detect_intent(text: str, lang: str):
         }
 
     # =========================
-    # SMART FALLBACK (آخر حل)
+    # SMART FALLBACK
     # =========================
     return {
         "reply": (
@@ -102,7 +113,3 @@ def detect_intent(text: str, lang: str):
         "intent": None
     }
 
-
-
-
-    
