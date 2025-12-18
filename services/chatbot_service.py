@@ -14,7 +14,7 @@ def detect_intent(text: str, lang: str):
     # =========================
     # BOOK ACTIVITY
     # =========================
-    if contains_any(text_lower, ["book", "booking", "reserve", "reservation"]) and \
+    if contains_any(text_lower, ["book", "booking", "reserve", "reservation"]): and \
        contains_any(text_lower, ["activity", "activities", "program", "class"]):
         return {
             "reply": (
